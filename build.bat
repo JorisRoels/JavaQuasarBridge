@@ -1,6 +1,6 @@
 mkdir output\class
 
-javac -d output\class java\src\be\vib\bits\Test.java java\src\be\vib\bits\QHost.java java\src\be\vib\bits\QValue.java java\src\be\vib\bits\QFunction.java java\src\be\vib\bits\QMethod.java java\src\be\vib\bits\QType.java java\src\be\vib\bits\QRange.java java\src\be\vib\bits\QNativePointer.java
+javac -d output\class java\src\be\vib\bits\Example1.java java\src\be\vib\bits\QHost.java java\src\be\vib\bits\QValue.java java\src\be\vib\bits\QFunction.java java\src\be\vib\bits\QMethod.java java\src\be\vib\bits\QType.java java\src\be\vib\bits\QRange.java java\src\be\vib\bits\QNativePointer.java
 
 javah -cp java\src -d output\include be.vib.bits.QHost
 javah -cp java\src -d output\include be.vib.bits.QValue
