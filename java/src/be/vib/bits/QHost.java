@@ -4,7 +4,7 @@ public class QHost
 {
 	static
 	{		
-		System.loadLibrary("QuasarBridge"); // loads QuasarBridge.dll (on Windows)
+		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
 	}
 	
 	public native static void init(String deviceName, boolean loadCompiler); // deviceName is "cuda" or "cpu" or ...
