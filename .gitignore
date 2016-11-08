@@ -1,1 +1,6 @@
 /output/
+/bin/
+/dist/
+/.classpath
+/.project
+/vc140.pdb
