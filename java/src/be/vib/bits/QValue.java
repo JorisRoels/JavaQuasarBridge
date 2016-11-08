@@ -24,6 +24,11 @@ public class QValue
 		ptr = newQValue(s);
 	}
 	
+	public QValue(int[] a)
+	{
+		ptr = newQValue(a);
+	}
+	
 	public QValue(float[] a)
 	{
 		ptr = newQValue(a);
@@ -43,7 +48,10 @@ public class QValue
 
 	private static native long newQValue(float f);
 
-	private static native long newQValue(float[] a); // TODO: higher dimensional arrays
+	private static native long newQValue(int[] a);
+	
+	private static native long newQValue(float[] a);
+	// TODO: higher dimensional arrays
 
 	private static native long newQValue(String s);
 	
@@ -58,7 +66,17 @@ public class QValue
 		long p = readhostVariableNative(varName);
 		return new QValue(new QNativePointer(p));
 	}
-
+	
+	public QValue getField(String fieldName)
+	{
+		long p = getFieldNative(fieldName);
+		return new QValue(new QNativePointer(p));
+	}
+	
+	private native long getFieldNative(String fieldName);
+	
+	public native void setField(String fieldName, QValue value);
+	
 	private static native long readhostVariableNative(String varName);
 
 	@Override

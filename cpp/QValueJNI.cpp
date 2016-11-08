@@ -61,13 +61,14 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue__F(JNIEnv*, jclass, jf
 	return reinterpret_cast<jlong>(q);
 }
 
-JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue___3F(JNIEnv* env, jclass, jfloatArray arr)
+template<typename JavaArrType, typename JavaElemType, typename QuasarElemType>
+jlong newQValueArrayHelper(JNIEnv* env, JavaArrType arr)
 {
 	jint numElems = env->GetArrayLength(arr);
 
 	jboolean isCopy = JNI_FALSE;
 
-	jfloat* jelems = (jfloat*)env->GetPrimitiveArrayCritical(arr, &isCopy); // TODO: make 100% sure we won't trigger deadlock between here and ReleasePrimitiveArrayCritical()
+	JavaElemType* jelems = (JavaElemType*)env->GetPrimitiveArrayCritical(arr, &isCopy); // TODO: make 100% sure we won't trigger deadlock between here and ReleasePrimitiveArrayCritical()
 
 	if (jelems == nullptr)
 	{
@@ -76,9 +77,9 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue___3F(JNIEnv* env, jcla
 		return 0;
 	}
 
-	QValue v = QValue::CreateVector<float>(numElems);
+	QValue v = QValue::CreateVector<QuasarElemType>(numElems);
 
-	Vector qelems = host->LockVector<float>(v);
+	VectorBase<QuasarElemType> qelems = host->LockVector<QuasarElemType>(v);
 	for (int i = 0; i < numElems; ++i)
 		qelems.data[i] = jelems[i];
 	host->UnlockVector(v);
@@ -89,17 +90,27 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue___3F(JNIEnv* env, jcla
 	assert(size(v, 1) == numElems);
 	assert(size(v, 2) == 1);
 
-	// We want an object on the heap so we can control its lifetime
+	// We want a QValue on the heap so we can control its lifetime
 	// from the Java side.
 	QValue *q = new QValue(v);
 
 	return reinterpret_cast<jlong>(q);
 }
 
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue___3I(JNIEnv* env, jclass, jintArray arr)
+{
+	return newQValueArrayHelper<jintArray, jint, int>(env, arr);
+}
+
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue___3F(JNIEnv* env, jclass, jfloatArray arr)
+{
+	return newQValueArrayHelper<jfloatArray, jfloat, float>(env, arr);
+}
+
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue__Ljava_lang_String_2(JNIEnv* env, jclass, jstring s)
 {
-	WideString strW(env, s);
-	QValue* q = new QValue(strW);
+	WideString stringW(env, s);
+	QValue* q = new QValue(stringW);
 	return reinterpret_cast<jlong>(q);
 }
 
@@ -132,3 +143,32 @@ JNIEXPORT jint JNICALL Java_be_vib_bits_QValue_size(JNIEnv* env, jobject obj, ji
 	return size(*q, dim);
 }
 
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_getFieldNative(JNIEnv* env, jobject obj, jstring fieldName)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	WideString fieldNameW(env, fieldName);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	QValue* value = new QValue(q->GetField(fieldNameW));  // Since we need a pointer to a QValue we need to copy it.
+
+	return reinterpret_cast<jlong>(value);
+}
+
+JNIEXPORT void JNICALL Java_be_vib_bits_QValue_setField(JNIEnv* env, jobject obj, jstring fieldName, jobject value)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	jlong valuePtr = env->GetLongField(value, qvalue_ptr_fieldID);
+	assert(valuePtr != 0);
+
+	WideString fieldNameW(env, fieldName);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+	QValue* qValue = reinterpret_cast<QValue*>(valuePtr);
+
+	q->SetField(fieldNameW, *qValue);
+}
