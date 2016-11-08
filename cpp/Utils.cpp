@@ -1,5 +1,6 @@
 #include "Utils.h"
 
+#undef toascii // macro indirectly defined via #include <string> on Windows clashes with toascii field of quasar::CoreLib
 #include "quasar_dsl.h"
 
 extern jfieldID qvalue_ptr_fieldID;
