@@ -2,11 +2,6 @@ package be.vib.bits;
 
 public class QHost
 {
-	static
-	{		
-		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
-	}
-	
 	public native static void init(String deviceName, boolean loadCompiler); // deviceName is "cuda" or "cpu" or ...
 	public native static void release();
 	
