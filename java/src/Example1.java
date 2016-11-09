@@ -1,4 +1,10 @@
-package be.vib.bits;
+
+
+import be.vib.bits.QFunction;
+import be.vib.bits.QHost;
+import be.vib.bits.QMethod;
+import be.vib.bits.QType;
+import be.vib.bits.QValue;
 
 public class Example1 {
 

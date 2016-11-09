@@ -1,10 +1,13 @@
-package be.vib.bits;
 
-import be.vib.bits.QHost;
-import be.vib.bits.QValue;
+
+import be.vib.bits.QExecutor;
 import be.vib.bits.QFunction;
-
-import java.io.IOException;
+import be.vib.bits.QHost;
+import be.vib.bits.QMethod;
+import be.vib.bits.QRange;
+import be.vib.bits.QType;
+import be.vib.bits.QTypeBuilder;
+import be.vib.bits.QValue;
 
 public class Test {
 	
@@ -17,34 +20,51 @@ public class Test {
 
 	public static void main(String[] args)
 	{
-		boolean loadCompiler = true;
-		QHost.init("cuda", loadCompiler);
-				
-		testLoadSource();
+		// We're using the QExecutor to run all bridge code on a single thread.
+		// But: without it all code executes on a single thread already (the main thread) so this is not really needed in this case.
+		// However: It serves as an example for user interface programs where some bridge code would get called from the main thread,
+		// and some code from the Java Event Dispatching thread. In that case the programmer must use QExecutor so all
+		// Quasar code gets executed on a single thread. Also, we're toying with the idea of the bridge running some tasks via QExecutor
+		// as well, for example finalizer code that deletes Quasar objects. Finalizer code is run from an arbitrary thread but must
+		// use the Quasar thread. QExecutor would take care of that.
+		// Conclusion: consider the use of QExecutor to be experimental.
+		QExecutor.getInstance().submit(() -> {
+			
+			boolean loadCompiler = true;
+			QHost.init("cuda", loadCompiler);
+					
+			testLoadSource();
+			
+			testLoadSourceFromString();
+			
+			testFunctionWithTooManyArgs();
+			
+			testSimpleQValues();
+			
+			testArrayQValue();
+			
+			testFunction1();
+	
+			testFunction2();
+			
+			testGaussian();
+			
+	//		testRange1();
+			
+	//		testUserStruct();  // FIXME
+			
+	//		testTypeBuilder();
+	
+			// TODO: test QValue.readHostVariable("foo");
+	
+			QHost.release();
+		});
 		
-		testLoadSourceFromString();
 		
-		testFunctionWithTooManyArgs();
-		
-		testSimpleQValues();
-		
-		testArrayQValue();
-		
-		testFunction1();
-
-		testFunction2();
-		
-		testGaussian();
-		
-//		testRange1();
-		
-//		testUserStruct();  // FIXME
-		
-//		testTypeBuilder();
-
-		// TODO: test QValue.readHostVariable("foo");
-
-		QHost.release();
+		// Wait for tasks to complete and then stop the executor.
+		// (Without it the executor will keep waiting for new tasks
+		// and the program will not terminate.)
+		QExecutor.getInstance().shutdown();
 	}
 	
 	private static void testSimpleQValues()
