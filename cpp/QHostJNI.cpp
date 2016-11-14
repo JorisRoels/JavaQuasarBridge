@@ -16,7 +16,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_init(JNIEnv *env, jclass, jstring 
 {
 	if (host != nullptr)
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "There can be only one Quasar host. Probably QHost.init() was called already.");
+		ThrowByName(env, "java/lang/RuntimeException", "There can be only one Quasar host. Probably QHost.init() was called already. If you want to re-initialize the Quasar host then call QHost.release() first.");
 		return;
 	}
 
@@ -92,7 +92,6 @@ JNIEXPORT jboolean JNICALL Java_be_vib_bits_QHost_unloadModule(JNIEnv *env, jcla
 	WideString moduleNameW(env, moduleName);
 
 	bool unloaded = host->UnloadModule(moduleNameW);
-	std::wcout << "UnloadModule of " << moduleNameW.data() << " " << (unloaded ? "successful" : "failed") << std::endl;
  	return unloaded ? JNI_TRUE : JNI_FALSE;
 }
 

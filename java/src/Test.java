@@ -1,5 +1,4 @@
 
-
 import be.vib.bits.QExecutor;
 import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
@@ -11,54 +10,58 @@ import be.vib.bits.QValue;
 
 public class Test {
 	
+	final static String quasarInstallationFolder = "E:\\Program Files\\Quasar\\";
+	
 	static
 	{		
-		System.out.println("About to load JavaQuasarBridge dynamic library");
 		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
 		System.out.println("JavaQuasarBridge loaded.");
 	}
 
 	public static void main(String[] args)
 	{
-		// We're using the QExecutor to run all bridge code on a single thread.
-		// But: without it all code executes on a single thread already (the main thread) so this is not really needed in this case.
+		// We're using the QExecutor to run all bridge code on a the same single thread.
+		// But: in the example here, without the executor all code would execute on a single thread already (the main thread) so this is not really needed in this case.
 		// However: It serves as an example for user interface programs where some bridge code would get called from the main thread,
 		// and some code from the Java Event Dispatching thread. In that case the programmer must use QExecutor so all
 		// Quasar code gets executed on a single thread. Also, we're toying with the idea of the bridge running some tasks via QExecutor
 		// as well, for example finalizer code that deletes Quasar objects. Finalizer code is run from an arbitrary thread but must
 		// use the Quasar thread. QExecutor would take care of that.
-		// Conclusion: consider the use of QExecutor to be experimental.
-		QExecutor.getInstance().submit(() -> {
+//		QExecutor.getInstance().submit(() -> {
 			
 			boolean loadCompiler = true;
 			QHost.init("cuda", loadCompiler);
-					
-			testLoadSource();
 			
-			testLoadSourceFromString();
+//			testLoadSource();
+//			
+//			testLoadSourceFromString();
+//			
+//			testFunctionWithTooManyArgs();
+//			
+//			testSimpleQValues();
+//			
+//			testArrayQValue();
+//
+//			testFunction1();
+//	
+//			testFunction2();
 			
-			testFunctionWithTooManyArgs();
+//			testGaussian();  // leaks 1 matrix in GPU memory
+//			
+//			testCellArrayAccess(); // leaks 1 matrix in GPU memory
+//			
+//			testRange1();
 			
-			testSimpleQValues();
+			testArraySlicing();
 			
-			testArrayQValue();
-			
-			testFunction1();
+//			testUserTypes();
 	
-			testFunction2();
+			System.out.println("about to release");
 			
-			testGaussian();
-			
-	//		testRange1();
-			
-	//		testUserStruct();  // FIXME
-			
-	//		testTypeBuilder();
-	
-			// TODO: test QValue.readHostVariable("foo");
-	
 			QHost.release();
-		});
+//		});
+			
+			// FIXME: check for exceptions thrown inside the executor!! Currently they get silently lost!
 		
 		
 		// Wait for tasks to complete and then stop the executor.
@@ -72,20 +75,24 @@ public class Test {
 		final int answer = 42;
 		final float pi = 3.14f;
 		final String haiku = "furu ike ya / kawazu tobikomu / mizu no oto";
+		final String nihongo = "\u65E5\u672C\u8A9E";
 		
 		QValue qv = new QValue();
 		QValue qi = new QValue(answer);
 		QValue qf = new QValue(pi);
-		QValue qs = new QValue(haiku);
+		QValue qs1 = new QValue(haiku);
+		QValue qs2 = new QValue(nihongo);
 		
-		assert(qi.getInt() == answer);   // CHECKME: fails with newest (>22 oct but < 7 nov 2016) Quasar lib, but works with the 22 oct version
+		assert(qi.getInt() == answer);		
 		assert(qf.getFloat() == pi);
-//		assert(qs.getString() == haiku);
+		assert(qs1.getString().equals(haiku));
+		assert(qs2.getString().equals(nihongo));
 		
 		qv.delete();
 		qi.delete();
 		qf.delete();
-		qs.delete();
+		qs1.delete();
+		qs2.delete();
 	}
 	
 	private static void testArrayQValue()
@@ -94,21 +101,24 @@ public class Test {
 		for (int i = 0; i < a.length; i++)
 			a[i] = i;
 		
-		System.out.println("a[5000]=" + a[5000]);
-		
 		QValue q = new QValue(a);
 	
+		// Check size
 		assert(q.size(0) == 1);
 		assert(q.size(1) == 10000);
 		assert(q.size(2) == 1);
 		
+		// Check content
+	    assert(q.at(5000).getFloat() == 5000);
+		
+	    // Immediate manual cleanup - it's a "large" array.
 		q.delete();
 	}
 
 	private static void testLoadSource()
 	{
 		// TODO: avoid dependency on files external to this project
-		QHost.loadSourceModule("E:\\Program Files\\Quasar\\Library\\dwt.q");
+		QHost.loadSourceModule(quasarInstallationFolder + "Library\\dwt.q");
 		
 		boolean exists = QHost.functionExists("dwt2d");
 		assert(exists);
@@ -144,7 +154,7 @@ public class Test {
 		assert(QHost.functionExists("imread"));
 		assert(QHost.functionExists("imshow"));
 
-		// FIXME? what about the unused void return values of tic() and toc()? Check if and how they get deleted.
+		// FIXME: what about the unused void return values of tic() and toc()? Check if and how they get deleted.
 		tic.apply();
 		QValue image = imread.apply(new QValue("lena_big.tif"));  // FIXME: check if/how the argument to 'apply' gets deleted
 		toc.apply(); // prints the time taken to read the image
@@ -162,9 +172,12 @@ public class Test {
 		QHost.runApp();
 				
 		// NOT SO GOOD
-		//image.delete(); // TODO: if we do not do the delete, Quasar release will warn us that there still is an image on the GPU (QValue.finalize is not called because the JVM did not create the QValue object, we created it on the C++ side.)
+		//image.delete(); // TODO: if we do not do the delete, Quasar release will warn us that there still is an image on the GPU
+		// (QValue.finalize is not called because the JVM did not create the QValue object, we created it on the C++ side.)
 		
 		// FIXME: delete it all - delete functions?
+		
+		image.delete();
 	}
 
 	private static void testFunction2()
@@ -192,7 +205,10 @@ public class Test {
 		
 		QValue e = new QValue(2.718281828f);  // more or less
 		QValue one = ln.apply(e);
-		System.out.println(one.getFloat());
+		assert(Math.abs(one.getFloat() - 1.0f) < 0.0001f);
+
+		// Manually cleanup matrices in GPU memory. FIXME
+		array.delete();
 	}
 	
 	private static void testFunctionWithTooManyArgs()
@@ -269,132 +285,122 @@ public class Test {
 		connect.apply(p1, p2);  // Call the function p1.connect(p2)
 		
 		QHost.runApp();
+		
+		// Manually cleanup matrices in GPU memory. FIXME
+		
+		imageIn.delete();
+		imageOut.delete();
 	}
 	
-	private static void testTypeBuilder()
-	{
-		/*
-		// Define the type so that it can be used from Quasar. Note that using this
-		// mechanism, objects of the type are subject to automatic memory management
-		// e.g. transfer between CPU and GPU etc. The objects can also be inspected
-		// in the debugger, serialized to file, ...
-		TypeBuilder builder(L"sample7", L"point");
-		builder.AddField(L"x", Type(L"int"));
-		builder.AddField(L"y", Type(L"int"));
-		Type type = builder.CreateType<point>();
-
-		// Create a typed object.
-		QValue obj2 = host->CreateTypedObject(type->private_obj);
-		// The "slow" way of setting properties
-		obj2.SetField(L"x", 4.5);
-		obj2.SetField(L"y", 7.5);
-		*/
+	private static void testCellArrayAccess()
+	{		
+		QHost.loadSourceModule(quasarInstallationFolder + "Library\\dtcwt.q");
 		
+		QValue selcw = QValue.readhostVariable("filtercoeff_selcw");  // filtercoeff_selcw is a 6 x 6 cell array		
+		assert(selcw.size(0) == 6);
+		assert(selcw.size(1) == 6);
+		
+		QValue coeffs = selcw.at(3, 1); // coeffs is now a 2 x 12 matrix of scalars
+		assert(coeffs.size(0) == 2);
+		assert(coeffs.size(1) == 12);
+
+		QValue coeff = coeffs.at(0, 1); // coeff is a scalar
+		assert(coeff.size(0) == 1);
+		assert(coeff.size(1) == 1);
+
+		assert(Math.abs(coeff.getFloat() - 0.0133588733151555f) < 0.0001f);
+		
+		// Manually cleanup matrices in GPU memory. FIXME
+		selcw.delete();
+		coeffs.delete();
+		coeff.delete();
+	}
+	
+	private static void testUserTypes()
+	{
+		// |This is work in progress.
+		// TODO: Mimick the example e:\Program Files\Quasar\Interop_Samples\Cpp_API\sample7_usertypes.cpp
+		
+		// This works:
 		QTypeBuilder builder = new QTypeBuilder("sample", "point");
 		builder.addField("x", new QType("int"));
 		builder.addField("y", new QType("int"));
-
-	}
 	
-	private static void testUserStruct()
-	{
-		QFunction object = new QFunction("object()");  // TODO: inform/check with Bart - it looks like this doesn't work or is not implemented yet
-		QFunction print = new QFunction("print(...)");
-		
+		// FIXME This does not work. It seems the object() function cannot be found. Check with Bart.
+		QFunction object = new QFunction("object()");		
 		boolean exists = QHost.functionExists("object");
 		System.out.println("object function exists? " + (exists ? "yes" : "no"));
-		assert(exists);
-
-		System.out.println("calling object()");
-		
-		// Create an untyped (Python-like) object, that has properties that can be
-		// assigned at run-time.
-		QValue obj = object.apply();
-//		obj.setField("x", new QValue(2.5f));
-//		print.apply(obj);
-
-		// Define the type so that it can be used from Quasar. Note that using this
-		// mechanism, objects of the type are subject to automatic memory management
-		// e.g. transfer between CPU and GPU etc. The objects can also be inspected
-		// in the debugger, serialized to file, ...
-//		TypeBuilder builder(L"sample7", L"point");
-//		builder.AddField(L"x", Type(L"int"));
-//		builder.AddField(L"y", Type(L"int"));
-//		Type type = builder.CreateType<point>();
-		
+		// assert(exists); // fails
 	}
 	
 	private static void testRange1()
 	{
-		QFunction print = new QFunction("print(...)");
 		QFunction maximum = new QFunction("max(??)");
 
-		/*
-		 * Examples from the Quasar REPL
-		 * :: 1..10..1
-		 * [ 1]
-		 * :: 1..1..10
-		 * [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-		 * :: 1..3..10
-		 * [ 1, 4, 7, 10]
-		 */
-		QRange range1 = new QRange(1, 10, 1);
-		print.apply(range1);  // [ 1]
-		assert(maximum.apply(range1).getInt() == 1);
-		assert(range1.size(1) == 1);
+		// Some integer ranges
+		QRange range1 = new QRange(1, 10, 1);  // [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+		assert(maximum.apply(range1).getFloat() == 10.0f);  // Note: integer range became range of scalars
+		assert(range1.size(1) == 10);
 		
-		QRange range2 = new QRange(1, 1, 10);
-		print.apply(range2);  // [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-		assert(maximum.apply(range2).getInt() == 10);
-		assert(range2.size(1) == 10);
+		QRange range2 = new QRange(1, 1, 10); // [ 1 ]
+		assert(maximum.apply(range2).getFloat() == 1);  // Note: integer range became range of scalars
+		assert(range2.size(1) == 1);
 		
-		QRange range3 = new QRange(1, 3, 10);
-		print.apply(range3); //  [ 1, 4, 7, 10]
-		assert(maximum.apply(range3).getInt() == 10);
-		assert(range3.size(1) == 4);
+		QRange range3 = new QRange(1, 3, 10); //  [ 1 ]
+		assert(maximum.apply(range3).getFloat() == 1);  // Note: integer range became range of scalars
+		assert(range3.size(1) == 1);
 
-		QRange range4 = new QRange(1, 10, 3);
-		print.apply(range4); //  [ 1]
-		assert(maximum.apply(range4).getInt() == 1);
-		assert(range4.size(1) == 1);
-
-		// TODO: log C++ API bug: QRange(1,10,1) says it is minval,maxval,step but gets interpreted as minval,step,maxval (due to default argument step being last...)
+		QRange range4 = new QRange(1, 10, 3); //  [ 1, 4, 7, 10 ]
+		assert(maximum.apply(range4).getFloat() == 10);  // Note: integer range became range of scalars
+		assert(range4.size(1) == 4);
 
 		// A float range
-		QRange range5 = new QRange(1, 0.5f, 10);
-		print.apply(range5); // [ 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
-		assert(maximum.apply(range5).getInt() == 10.0f);
+		QRange range5 = new QRange(1.0f, 10.0f, 0.5f); // [ 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10 ]
+		assert(maximum.apply(range5).getFloat() == 10.0f);
 		assert(range5.size(1) == 19);
+		
+		// Manually cleanup matrices in GPU memory. FIXME
+		range1.delete();
+		range2.delete();
+		range3.delete();
+		range4.delete();
+		range5.delete();
+		maximum.delete();
 	}
 	
-//	private static void testRange2()
-//	{
-//		
-//		QFunction imread = new QFunction("imread(string)");
+	private static void testArraySlicing()
+	{
+		QFunction imread = new QFunction("imread(string)");
+		assert(QHost.functionExists("imread"));
+
+		QValue image = imread.apply(new QValue("lena_big.tif"));		
+		assert(image.size(0) == 512);
+		assert(image.size(1) == 512);
+		assert(image.size(2) == 3);
+
+		// Slice channel 2 from the image (= the blue channel)
+		QValue blueChannel = image.at(new QRange(), new QRange(), new QValue(2));
+		
+		assert(blueChannel.size(0) == image.size(0));
+		assert(blueChannel.size(1) == image.size(1));
+		assert(blueChannel.size(2) == 1);
+		
+		assert(blueChannel.at(100, 200).getFloat() == image.at(100, 200, 2).getFloat());
+		
+		// Crop the image
+		QValue face = image.at(new QRange(128, 383), new QRange(128, 383), new QValue());
+		
+		assert(face.size(0) == 256);
+		assert(face.size(1) == 256);
+		assert(face.size(2) == 3);
+
 //		QFunction imshow = new QFunction("imshow(cube)");
-//		
-//		assert(QHost.functionExists("imread"));
-//		assert(QHost.functionExists("imshow"));
-//
-//		QValue image = imread.apply(new QValue("lena_big.tif"));
-//		
-//		assert(image.size(0) == 512);
-//		assert(image.size(1) == 512);
-//		assert(image.size(2) == 3);
-//
-//		System.out.println("Original dimensions: " + image.size(0) + " x " + image.size(1) + " x " + image.size(2));
-//		
-//		// img = img[:,:,1]
-//		
-//		// TODO: this does not work yet!
-//		image = image(new QRange(), new QRange(), new QValue(1)); // TODO: verify/test that memory handling is correct here
-//		
-//		System.out.println("New dimensions: " + image.size(0) + " x " + image.size(1) + " x " + image.size(2));
-//
-//		imshow.apply(image);
-//		
-//		// Handle user interaction with the image window.
-//		// (Blocks until all image windows are closed.)
+//		imshow.apply(face);
 //		QHost.runApp();
-//	}
+		
+		// Manually cleanup matrices in GPU memory. FIXME
+		image.delete();
+		blueChannel.delete();
+		face.delete();
+	}
 }

@@ -10,7 +10,7 @@ using namespace quasar;
 
 extern IQuasarHost* host;
 
-static_assert(sizeof(jlong) == 8, "jlong must be 64 bit");
+static_assert(sizeof(jlong) == 8, "jlong must be 64 bit");  /// so it can be used to hold a C++ pointer
 
 // We cache the ID of the 'ptr' field of be.vib.bits.QValue in a global variable.
 // It is also used in the JNI implementation of the derived classes of QValue.
@@ -19,10 +19,9 @@ jfieldID qvalue_ptr_fieldID = nullptr;
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QValue_initIDs(JNIEnv* env, jclass cls)
 {
-	std::cout << "Java_be_vib_bits_QValue_initIDs " << std::endl;
 	qvalue_ptr_fieldID = env->GetFieldID(cls, "ptr", "J");
 	// If qvalue_ptr_fieldID == nullptr here, then GetFieldID() has thrown an exception.
-	// It is still pending but will become active the instant we leave native code and return to Java.
+	// The exception is still pending but will become active the instant we leave native code and return to Java.
 }
 
 JNIEXPORT jint JNICALL Java_be_vib_bits_QValue_getInt(JNIEnv* env, jobject obj)
@@ -31,7 +30,9 @@ JNIEXPORT jint JNICALL Java_be_vib_bits_QValue_getInt(JNIEnv* env, jobject obj)
 	assert(ptr != 0);
 
 	QValue* q = reinterpret_cast<QValue*>(ptr);
-	return static_cast<int>(*q);
+	int i = static_cast<int>(*q);
+
+	return i;
 }
 
 JNIEXPORT jfloat JNICALL Java_be_vib_bits_QValue_getFloat(JNIEnv* env, jobject obj)
@@ -40,7 +41,22 @@ JNIEXPORT jfloat JNICALL Java_be_vib_bits_QValue_getFloat(JNIEnv* env, jobject o
 	assert(ptr != 0);
 
 	QValue* q = reinterpret_cast<QValue*>(ptr);
-	return static_cast<float>(*q);
+	float f = static_cast<float>(*q);
+
+	return f;
+}
+
+JNIEXPORT jstring JNICALL Java_be_vib_bits_QValue_getString(JNIEnv* env, jobject obj)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+	string_t s = static_cast<string_t>(*q);
+
+	const jchar* uchars = reinterpret_cast<const jchar*>(s.get_buf());
+	jsize len = s.get_length(); // len = number of unicode characters, not the number of bytes
+	return env->NewString(uchars, len);
 }
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue__(JNIEnv*, jclass)
@@ -141,6 +157,60 @@ JNIEXPORT jint JNICALL Java_be_vib_bits_QValue_size(JNIEnv* env, jobject obj, ji
 
 	QValue* q = reinterpret_cast<QValue*>(ptr);
 	return size(*q, dim);
+}
+
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__I(JNIEnv* env, jobject obj, jint i)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	QValue* value = new QValue((*q)(i));  // Since we need a pointer to a QValue we need to copy it.
+
+	return reinterpret_cast<jlong>(value);
+}
+
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__II(JNIEnv* env, jobject obj, jint i, jint j)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	QValue* value = new QValue((*q)(i, j));  // Since we need a pointer to a QValue we need to copy it.
+
+	return reinterpret_cast<jlong>(value);
+}
+
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__III(JNIEnv* env, jobject obj, jint i, jint j, jint k)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	QValue* value = new QValue((*q)(i, j, k));  // Since we need a pointer to a QValue we need to copy it.
+
+	return reinterpret_cast<jlong>(value);
+}
+
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNativeQ(JNIEnv* env, jobject obj, jlong ptr1, jlong ptr2, jlong ptr3)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	QValue* q1 = reinterpret_cast<QValue*>(ptr1);
+	QValue* q2 = reinterpret_cast<QValue*>(ptr2);
+	QValue* q3 = reinterpret_cast<QValue*>(ptr3);
+
+	// Index the QValue *q using three other QValue indices.
+	// This is typically used for slicing QValue cubes.
+	QValue* value = new QValue((*q)(*q1, *q2, *q3));  // Since we need a pointer to a QValue we need to copy it.
+
+	return reinterpret_cast<jlong>(value);
 }
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_getFieldNative(JNIEnv* env, jobject obj, jstring fieldName)

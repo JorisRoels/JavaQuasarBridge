@@ -11,30 +11,11 @@ using namespace quasar;
 
 extern jfieldID qvalue_ptr_fieldID;
 
-namespace
-{
-	// Caller receives ownership over the copy and is responsible for releasing it with delete[].
-	LPCWSTR CopyStringW(LPCWSTR strW)
-	{
-		auto len = wcslen(strW);
-		LPWSTR copyW = new wchar_t[len + 1];
-		wcscpy(copyW, strW);
-		return copyW;
-	}
-}
-
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_newQFunction(JNIEnv *env, jclass, jstring signature)
 {
 	WideString signatureW(env, signature);
 
-	LPCWSTR signatureCopyW = CopyStringW(signatureW);
-
-	Function* q = new Function(signatureCopyW);
-	// Note: Function does not copy the signature string and we are responsible for keeping it alive
-
-	// FIXME: store signatureCopyW in a long value on the Java side of QFunction and delete it when QFunction is deleted.
-	//        (currently we have a memory leak)
-	//        Or ask Bart to change the quasar::Function API so it copies the signature :-)
+	Function* q = new Function(signatureW);
 
 	return reinterpret_cast<jlong>(q);
 }
@@ -73,20 +54,31 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_applyNative(JNIEnv* env, jobj
 	assert(funcPtr != 0);
 	Function* f = reinterpret_cast<Function*>(funcPtr);
 
-	QValue* resultCopy = nullptr;
-	switch (numArgs)
+	try
 	{
-		case 0:	resultCopy = new QValue((*f)()); break;
-		case 1:	resultCopy = new QValue((*f)(*arg1)); break;
-		case 2:	resultCopy = new QValue((*f)(*arg1, *arg2)); break;
-		case 3:	resultCopy = new QValue((*f)(*arg1, *arg2, *arg3)); break;
-		case 4:	resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4)); break;
-		case 5: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5)); break;
-		case 6: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6)); break;
-		case 7: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7)); break;
-		case 8: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8)); break;
-		default: return 0;
+		QValue* resultCopy = nullptr;
+		switch (numArgs)
+		{
+			case 0:	resultCopy = new QValue((*f)()); break;
+			case 1:	resultCopy = new QValue((*f)(*arg1)); break;
+			case 2:	resultCopy = new QValue((*f)(*arg1, *arg2)); break;
+			case 3:	resultCopy = new QValue((*f)(*arg1, *arg2, *arg3)); break;
+			case 4:	resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4)); break;
+			case 5: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5)); break;
+			case 6: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6)); break;
+			case 7: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7)); break;
+			case 8: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8)); break;
+			default: return 0;
+		}
+		return reinterpret_cast<jlong>(resultCopy);
 	}
-
-	return reinterpret_cast<jlong>(resultCopy);
+	catch (exception_t e)
+	{
+		// FIXME: we should throw a Java exception here
+		std::wcout << "Caught C++ exception during function application. The function was passed %d argument(s)." << std::endl;
+		std::wcout << "Source: " << e.source.get_buf() << std::endl;
+		std::wcout << "Message: " << e.message.get_buf() << std::endl;
+		std::wcout << "Stacktrace: " << e.stack_trace.get_buf() << std::endl;
+		return 0;
+	}
 }

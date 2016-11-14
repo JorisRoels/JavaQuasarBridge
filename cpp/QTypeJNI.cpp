@@ -13,7 +13,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QType_newQType__J(JNIEnv*, jclass, jlon
 {
 	assert(ptr != 0);
 	QValue* q = reinterpret_cast<QValue*>(ptr);
-	QValue* t = new Type(*q);
+	QValue* t = new Type(static_cast<qvalue_t>(*q));
 	return reinterpret_cast<jlong>(t);
 }
 

@@ -1,7 +1,7 @@
-mkdir output\class
+set MY_QUASAR=E:\Program Files\Quasar
+set MY_JAVA=E:\Program Files\Java\jdk1.8.0_92
 
-echo ======= FIXME: We have to use and OLD Quasar version because of compiler error in quasar_dsl.h ========
-set MY_QUASAR=e:\Program Files\Quasar - 22 Oct 2016
+mkdir output\class
 
 javac -d output\class ^
 java\src\be\vib\bits\QExecutor.java ^
@@ -39,8 +39,6 @@ cpp\QFunctionJNI.cpp ^
 cpp\QTypeJNI.cpp ^
 cpp\QMethodJNI.cpp ^
 cpp\QRangeJNI.cpp ^
-"%MY_QUASAR%\include\quasar_dsl.cpp" "%MY_QUASAR%\include\quasar_host.cpp" /I"E:\Program Files\Java\jdk1.8.0_92\include\win32" /I"e:\Program Files\Java\jdk1.8.0_92\include" /Ioutput\include /I"%MY_QUASAR%\include" /Fooutput\ /Feoutput\JavaQuasarBridge.dll
+"%MY_QUASAR%\include\quasar_dsl.cpp" "%MY_QUASAR%\include\quasar_host.cpp" /I"%MY_JAVA%\include\win32" /I"%MY_JAVA%\include" /Ioutput\include /I"%MY_QUASAR%\include" /Fooutput\ /Feoutput\JavaQuasarBridge.dll
 
 rem Note: To obtain class descriptors for JNI, use e.g. "javap -cp output\class -s -p be.vib.bits.QValue"
-
-echo ======= FIXME: We used an OLD Quasar version because of compiler error in quasar_dsl.h ========

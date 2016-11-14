@@ -2,6 +2,12 @@ package be.vib.bits;
 
 public class QRange extends QValue
 {  
+	public QRange()
+	{
+		super();
+		ptr = newQRange();
+	}
+	
 	public QRange(int minVal, int maxVal)
 	{
 		this(minVal, maxVal, 1);
@@ -24,6 +30,7 @@ public class QRange extends QValue
 		ptr = newQRange(minVal, maxVal, step);
 	}
 	
+	private native static long newQRange();
 	private native static long newQRange(int minVal, int maxVal, int step);
 	private native static long newQRange(float minVal, float maxVal, float step);
 }

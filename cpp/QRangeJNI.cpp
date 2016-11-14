@@ -7,10 +7,15 @@
 
 using namespace quasar;
 
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QRange_newQRange__(JNIEnv *, jclass)
+{
+	QValue *q = new Range();
+	return reinterpret_cast<jlong>(q);
+}
+
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QRange_newQRange__III(JNIEnv *, jclass, jint minVal, jint maxVal, jint step)
 {
 	QValue *q = new Range(minVal, maxVal, step);
-	std::cout << "   QValue* of Range: " << q << std::endl;
 	return reinterpret_cast<jlong>(q);
 }
 

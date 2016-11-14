@@ -18,7 +18,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QMethod_newQMethod(JNIEnv* env, jclass,
 
 	Type* type = reinterpret_cast<Type*>(typePtr);
 
-	Method* q = new Method(*type, signatureW);  // TODO: check/ask if copy of signature needed (it *is* in newFunction),
+	Method* q = new Method(*type, signatureW);  // TODO: check/ask if copy of signature needed (it used to be needed in newFunction for example - but not anymore),
 
 	return reinterpret_cast<jlong>(q);
 }
