@@ -74,35 +74,51 @@ public class QValue
 		return new QValue(new QNativePointer(p));
 	}
 	
-	public QValue at(int i) // access element i in a 1D array; indexing is 0-based
+	public QValue at(int m) // access element m in a 1D array; indexing is 0-based
 	{
-		long p = atNative(i);
+		long p = atNative(m);
 		return new QValue(new QNativePointer(p));
 	}
 	
-	public QValue at(int i, int j) // access element (i, j) in a 2D array; indexing is 0-based
+	public QValue at(int m, int n) // access element (m, n) in a 2D array; indexing is 0-based
 	{
-		long p = atNative(i, j);
+		long p = atNative(m, n);
 		return new QValue(new QNativePointer(p));
 	}
 	
-	public QValue at(int i, int j, int k) // access element (i, j, k) in a 3D array; indexing is 0-based
+	public QValue at(int m, int n, int k) // access element (m, n, k) in a 3D array; indexing is 0-based
 	{
-		long p = atNative(i, j, k);
+		long p = atNative(m, n, k);
 		return new QValue(new QNativePointer(p));
 	}
 	
-	public QValue at(QValue q1, QValue q2, QValue q3)  // TODO - this is an experiment, can be used for 3D array access using QValues (such as ranges) as indices - useful for slicing cubes
+	public QValue at(QValue m)  // access element with index m in a 1D array; the index m is a QValue (for example a range)
 	{
-		long p = atNativeQ(q1.ptr, q2.ptr, q3.ptr);
+		long p = atNativeQ(m.ptr);
 		return new QValue(new QNativePointer(p));
 	}
 	
-	private native long atNative(int i);
+	public QValue at(QValue m, QValue n)   // access element with indices (m, n) in a 2D array; the indices are QValues (for example ranges)
+	{
+		long p = atNativeQ(m.ptr, n.ptr);
+		return new QValue(new QNativePointer(p));
+	}
 	
-	private native long atNative(int i, int j);
+	public QValue at(QValue m, QValue n, QValue k)   // access element with indices (m, n, k) in a 3D array; the indices are QValues (for example ranges)
+	{
+		long p = atNativeQ(m.ptr, n.ptr, k.ptr);
+		return new QValue(new QNativePointer(p));
+	}
 	
-	private native long atNative(int i, int j, int k);
+	private native long atNative(int m);
+	
+	private native long atNative(int m, int n);
+	
+	private native long atNative(int m, int n, int k);
+
+	private native long atNativeQ(long ptr1);
+
+	private native long atNativeQ(long ptr1, long ptr2);
 
 	private native long atNativeQ(long ptr1, long ptr2, long ptr3);
 	

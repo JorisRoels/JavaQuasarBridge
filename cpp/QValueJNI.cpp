@@ -159,58 +159,56 @@ JNIEXPORT jint JNICALL Java_be_vib_bits_QValue_size(JNIEnv* env, jobject obj, ji
 	return size(*q, dim);
 }
 
-JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__I(JNIEnv* env, jobject obj, jint i)
+template<typename ...Indices>
+jlong atNativeHelper(JNIEnv* env, jobject obj, Indices... indices)
 {
 	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
 	assert(ptr != 0);
 
 	QValue* q = reinterpret_cast<QValue*>(ptr);
 
-	QValue* value = new QValue((*q)(i));  // Since we need a pointer to a QValue we need to copy it.
+	// Index the QValue *q.
+	// Integer as well as QValue indices are supported.
+	// The latter is typically used for slicing QValue vectors/arrays/cubes/... by using a QRange as index.
+	QValue* value = new QValue((*q)(indices...));  // Since we need a pointer to a QValue we need to copy it.
 
 	return reinterpret_cast<jlong>(value);
 }
 
-JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__II(JNIEnv* env, jobject obj, jint i, jint j)
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__I(JNIEnv* env, jobject obj, jint m)
 {
-	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
-	assert(ptr != 0);
-
-	QValue* q = reinterpret_cast<QValue*>(ptr);
-
-	QValue* value = new QValue((*q)(i, j));  // Since we need a pointer to a QValue we need to copy it.
-
-	return reinterpret_cast<jlong>(value);
+	return atNativeHelper<jint>(env, obj, m);
 }
 
-JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__III(JNIEnv* env, jobject obj, jint i, jint j, jint k)
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__II(JNIEnv* env, jobject obj, jint m, jint n)
 {
-	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
-	assert(ptr != 0);
-
-	QValue* q = reinterpret_cast<QValue*>(ptr);
-
-	QValue* value = new QValue((*q)(i, j, k));  // Since we need a pointer to a QValue we need to copy it.
-
-	return reinterpret_cast<jlong>(value);
+	return atNativeHelper<jint>(env, obj, m, n);
 }
 
-JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNativeQ(JNIEnv* env, jobject obj, jlong ptr1, jlong ptr2, jlong ptr3)
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNative__III(JNIEnv* env, jobject obj, jint m, jint n, jint k)
 {
-	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
-	assert(ptr != 0);
+	return atNativeHelper<jint>(env, obj, m, n, k);
+}
 
-	QValue* q = reinterpret_cast<QValue*>(ptr);
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNativeQ__JJ(JNIEnv* env, jobject obj, jlong ptr1)
+{
+	const QValue* q1 = reinterpret_cast<QValue*>(ptr1);
+	return atNativeHelper<const QValue&>(env, obj, *q1);
+}
 
-	QValue* q1 = reinterpret_cast<QValue*>(ptr1);
-	QValue* q2 = reinterpret_cast<QValue*>(ptr2);
-	QValue* q3 = reinterpret_cast<QValue*>(ptr3);
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNativeQ__JJ(JNIEnv* env, jobject obj, jlong ptr1, jlong ptr2)
+{
+	const QValue* q1 = reinterpret_cast<QValue*>(ptr1);
+	const QValue* q2 = reinterpret_cast<QValue*>(ptr2);
+	return atNativeHelper<const QValue&>(env, obj, *q1, *q2);
+}
 
-	// Index the QValue *q using three other QValue indices.
-	// This is typically used for slicing QValue cubes.
-	QValue* value = new QValue((*q)(*q1, *q2, *q3));  // Since we need a pointer to a QValue we need to copy it.
-
-	return reinterpret_cast<jlong>(value);
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_atNativeQ__JJJ(JNIEnv* env, jobject obj, jlong ptr1, jlong ptr2, jlong ptr3)
+{
+	const QValue* q1 = reinterpret_cast<QValue*>(ptr1);
+	const QValue* q2 = reinterpret_cast<QValue*>(ptr2);
+	const QValue* q3 = reinterpret_cast<QValue*>(ptr3);
+	return atNativeHelper<const QValue&>(env, obj, *q1, *q2, *q3);
 }
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_getFieldNative(JNIEnv* env, jobject obj, jstring fieldName)
