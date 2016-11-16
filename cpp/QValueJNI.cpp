@@ -55,7 +55,7 @@ JNIEXPORT jstring JNICALL Java_be_vib_bits_QValue_getString(JNIEnv* env, jobject
 	string_t s = static_cast<string_t>(*q);
 
 	const jchar* uchars = reinterpret_cast<const jchar*>(s.get_buf());
-	jsize len = s.get_length(); // len = number of unicode characters, not the number of bytes
+	jsize len = s.get_length(); // len = number of Unicode characters, not the number of bytes
 	return env->NewString(uchars, len);
 }
 

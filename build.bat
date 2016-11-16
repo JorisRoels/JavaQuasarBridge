@@ -14,6 +14,7 @@ java\src\be\vib\bits\QMethod.java ^
 java\src\be\vib\bits\QType.java ^
 java\src\be\vib\bits\QRange.java ^
 java\src\be\vib\bits\QNativePointer.java ^
+java\src\be\vib\bits\QException.java ^
 java\src\Test.java ^
 java\src\Example1.java
 

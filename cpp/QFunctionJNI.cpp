@@ -74,11 +74,11 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_applyNative(JNIEnv* env, jobj
 	}
 	catch (exception_t e)
 	{
-		// FIXME: we should throw a Java exception here
-		std::wcout << "Caught C++ exception during function application. The function was passed %d argument(s)." << std::endl;
-		std::wcout << "Source: " << e.source.get_buf() << std::endl;
-		std::wcout << "Message: " << e.message.get_buf() << std::endl;
-		std::wcout << "Stacktrace: " << e.stack_trace.get_buf() << std::endl;
+		std::string source = UTF16toModifiedUTF8(e.source.get_buf());
+		std::string message = UTF16toModifiedUTF8(e.message.get_buf());
+		std::string stacktrace = UTF16toModifiedUTF8(e.stack_trace.get_buf());
+		ThrowByName(env, "be/vib/bits/QException", "\n---"
+				"\nSource:\n" + source + "\nMessage:\n" + message + "\nStacktrace:\n" + stacktrace + "\n---\n");
 		return 0;
 	}
 }
