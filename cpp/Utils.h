@@ -6,6 +6,7 @@
 
 namespace quasar { class QValue; }
 
+// Returns an observing (non-owning) pointer to the index-th QValue in args.
 quasar::QValue* GetQValueArg(JNIEnv* env, jobjectArray args, jsize index);
 
 // exception: name of the exception, for example "java/lang/RuntimeException"
