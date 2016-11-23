@@ -25,7 +25,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_init(JNIEnv *env, jclass, jstring 
  	host = quasar::IQuasarHost::Create(deviceW, loadCompiler == JNI_TRUE);
 	if (host == nullptr)
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "Fatal: QHost.init() failed.");
+		ThrowByName(env, "java/lang/RuntimeException", "QHost.init() failed for an unknown reason.");
 		return;
 	}
 }
@@ -34,7 +34,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_release(JNIEnv* env, jclass)
 {
 	if (host == nullptr)
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "QHost.release() failed. There does not seem to be a Quasar host active. Did you call QHost.init() first?");
+		ThrowByName(env, "java/lang/RuntimeException", "QHost.release() failed because there does not seem to be a Quasar host active. Did you call QHost.init() first?");
 		return;
 	}
 
