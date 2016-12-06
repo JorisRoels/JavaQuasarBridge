@@ -20,13 +20,7 @@ public class Test {
 
 	public static void main(String[] args)
 	{
-		// We're using the QExecutor to run all bridge code on a the same single thread.
-		// But: in the example here, without the executor all code would execute on a single thread already (the main thread) so this is not really needed in this case.
-		// However: It serves as an example for user interface programs where some bridge code would get called from the main thread,
-		// and some code from the Java Event Dispatching thread. In that case the programmer must use QExecutor so all
-		// Quasar code gets executed on a single thread. Also, we're toying with the idea of the bridge running some tasks via QExecutor
-		// as well, for example finalizer code that deletes Quasar objects. Finalizer code is run from an arbitrary thread but must
-		// use the Quasar thread. QExecutor would take care of that.
+		// We're using the QExecutor to run all Quasar code on a the same single Quasar thread.
 		
 		QExecutor.getInstance().execute(() -> {
 			
@@ -52,9 +46,9 @@ public class Test {
 			
 			testFunctionWithTooManyArgs();
 			
-			testGaussian();  // FIXME: leaks 1 matrix in GPU memory
+			testGaussian();
 			
-			testArrayAccess(); // FIXME: leaks 1 matrix in GPU memory
+			testArrayAccess();
 			
 			testRange();
 			
