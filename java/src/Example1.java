@@ -1,18 +1,35 @@
-
-
+import be.vib.bits.QExecutor;
 import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
 import be.vib.bits.QMethod;
 import be.vib.bits.QType;
 import be.vib.bits.QValue;
 
-public class Example1 {
+public class Example1
+{
+	static
+	{		
+		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
+	}
 
 	public static void main(String[] args)
 	{
-		boolean loadCompiler = true;
-		QHost.init("cuda", loadCompiler);
-				
+		QExecutor.getInstance().execute(() -> {
+			
+			boolean loadCompiler = true;
+			QHost.init("cuda", loadCompiler);
+			
+			GaussianDemo();
+			
+			QHost.release();
+		});
+			
+		QExecutor.getInstance().shutdown();
+	}
+	
+	
+	public static void GaussianDemo()
+	{				
 		// This Quasar fragment was borrowed from the sample program sample3_inlineprogram.cpp
 		// which is part of the Quasar installation.
 		String program =
@@ -67,8 +84,6 @@ public class Example1 {
 		// Handle events on the imshow image window.
 		// Blocks until the users closes all open imshow windows.
 		QHost.runApp();
-
-		QHost.release();
 	}
 
 }
