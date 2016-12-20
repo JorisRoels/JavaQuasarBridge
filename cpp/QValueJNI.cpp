@@ -10,7 +10,7 @@ using namespace quasar;
 
 extern IQuasarHost* host;
 
-static_assert(sizeof(jlong) == 8, "jlong must be 64 bit");  /// so it can be used to hold a C++ pointer
+static_assert(sizeof(jlong) == 8, "jlong must be 64 bit");  // so it can be used to hold a C++ pointer
 
 // We cache the ID of the 'ptr' field of be.vib.bits.QValue in a global variable.
 // It is also used in the JNI implementation of the derived classes of QValue.
@@ -130,7 +130,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_newQValue__Ljava_lang_String_2(J
 	return reinterpret_cast<jlong>(q);
 }
 
-JNIEXPORT void JNICALL Java_be_vib_bits_QValue_delete(JNIEnv* env, jobject obj)
+JNIEXPORT void JNICALL Java_be_vib_bits_QValue_dispose(JNIEnv* env, jobject obj)
 {
 	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
 	if (ptr == 0) return;  // ptr being 0 is a perfectly acceptable code path - not an error.

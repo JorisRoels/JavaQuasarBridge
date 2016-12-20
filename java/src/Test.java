@@ -85,11 +85,11 @@ public class Test {
 		assert(qs1.getString().equals(haiku));
 		assert(qs2.getString().equals(nihongo));
 		
-		qv.delete();
-		qi.delete();
-		qf.delete();
-		qs1.delete();
-		qs2.delete();
+		qv.dispose();
+		qi.dispose();
+		qf.dispose();
+		qs1.dispose();
+		qs2.dispose();
 	}
 	
 	private static void testFloatArray()
@@ -109,7 +109,7 @@ public class Test {
 	    assert(q.at(5000).getFloat() == 5000);
 		
 	    // Immediate manual cleanup - it's a "large" array.
-		q.delete();
+		q.dispose();
 	}
 
 	private static void testIntArray()
@@ -129,7 +129,7 @@ public class Test {
 	    assert(q.at(5000).getFloat() == 5000.0f);   // ! note that the int array got turned into scalars (floats!).
 		
 	    // Immediate manual cleanup - it's a "large" array.
-		q.delete();
+		q.dispose();
 	}
 
 	private static void testLoadSource()
@@ -184,7 +184,7 @@ public class Test {
 		QHost.runApp();
 				
 	    // Immediate manual cleanup - it's a "large" array.
-		image.delete();
+		image.dispose();
 	}
 
 	private static void testFunction2()
@@ -215,7 +215,7 @@ public class Test {
 		assert(Math.abs(one.getFloat() - 1.0f) < 0.0001f);
 
 		// Manually cleanup matrices in GPU memory
-		array.delete();
+		array.dispose();
 	}
 	
 	private static void testFunctionWithTooManyArgs()
@@ -294,8 +294,8 @@ public class Test {
 		QHost.runApp();
 		
 		// Manually cleanup matrices in GPU memory
-		imageIn.delete();
-		imageOut.delete();
+		imageIn.dispose();
+		imageOut.dispose();
 	}
 	
 	private static void testArrayAccess()
@@ -317,9 +317,9 @@ public class Test {
 		assert(Math.abs(coeff.getFloat() - 0.0133588733151555f) < 0.0001f);
 		
 		// Manually cleanup matrices in GPU memory.
-		selcw.delete();
-		coeffs.delete();
-		coeff.delete();
+		selcw.dispose();
+		coeffs.dispose();
+		coeff.dispose();
 	}
 	
 	private static void testUserTypes()
@@ -366,12 +366,12 @@ public class Test {
 		assert(range5.size(1) == 19);
 		
 		// Manually cleanup matrices in GPU memory.
-		range1.delete();
-		range2.delete();
-		range3.delete();
-		range4.delete();
-		range5.delete();
-		maximum.delete();
+		range1.dispose();
+		range2.dispose();
+		range3.dispose();
+		range4.dispose();
+		range5.dispose();
+		maximum.dispose();
 	}
 	
 	private static void testArraySlicing()
@@ -405,8 +405,8 @@ public class Test {
 //		QHost.runApp();
 		
 		// Manually cleanup matrices in GPU memory.
-		image.delete();
-		blueChannel.delete();
-		face.delete();
+		image.dispose();
+		blueChannel.dispose();
+		face.dispose();
 	}
 }
