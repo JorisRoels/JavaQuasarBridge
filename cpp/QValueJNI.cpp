@@ -141,6 +141,16 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QValue_dispose(JNIEnv* env, jobject obj)
 	env->SetLongField(obj, qvalue_ptr_fieldID, 0);
 }
 
+JNIEXPORT void JNICALL Java_be_vib_bits_QValue_retain(JNIEnv* env, jobject obj)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	if (ptr == 0) return;
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	host->AddRef(static_cast<qvalue_t>(*q));
+}
+
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_readhostVariableNative(JNIEnv* env, jclass, jstring varName)
 {
 	WideString varNameW(env, varName);

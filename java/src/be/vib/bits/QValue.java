@@ -61,6 +61,8 @@ public class QValue
 	public native String getString();
 	
 	public native void dispose(); // TODO: does this need to be synchronized?
+	
+	public native void retain();
 
 	public static QValue readhostVariable(String varName)
 	{

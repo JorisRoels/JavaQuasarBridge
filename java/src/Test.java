@@ -55,6 +55,8 @@ public class Test {
 			testArraySlicing();
 			
 			testUserTypes();
+			
+			testMisc();
 	
 			System.out.println("about to release");
 			
@@ -408,5 +410,15 @@ public class Test {
 		image.dispose();
 		blueChannel.dispose();
 		face.dispose();
+	}
+	
+	private static void testMisc()
+	{
+		// Not particularly useful for now,
+		// but at least ensures that
+		// QValue.retain() is implemented.
+		QValue t = new QValue(42);
+		t.retain();
+		t.dispose();
 	}
 }
