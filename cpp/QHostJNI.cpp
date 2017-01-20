@@ -103,6 +103,16 @@ JNIEXPORT jboolean JNICALL Java_be_vib_bits_QHost_functionExists(JNIEnv *env, jc
 	return exists ? JNI_TRUE : JNI_FALSE;
 }
 
+JNIEXPORT void JNICALL Java_be_vib_bits_QHost_enableProfiling(JNIEnv* env, jclass)
+{
+	assert(host != nullptr);
+	bool success = host->EnableProfiling(PROFILE_MEMLEAKS);  // also possible: PROFILE_ACCURACY or PROFILE_EXECUTIONTIME
+	if (!success)
+	{
+		ThrowByName(env, "java/lang/RuntimeException", "QHost.enableProfile() failed");
+	}
+}
+
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_runApp(JNIEnv *, jclass)
 {
 	assert(host != nullptr);
