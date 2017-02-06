@@ -3,6 +3,7 @@
 #include "quasar_dsl.h"
 
 #include "WideString.h"
+#include "Utils.h"
 
 #include <iostream>
 
@@ -154,8 +155,14 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QValue_retain(JNIEnv* env, jobject obj)
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_readhostVariableNative(JNIEnv* env, jclass, jstring varName)
 {
 	WideString varNameW(env, varName);
-	QValue* q = new QValue(QValue::ReadHostVariable(varNameW));
-	// Note the QValue copy above because we need the QValue on the heap so we can control its lifetime from the Java side
+	QValue* q = new QValue();  // We need the QValue on the heap so we can control its lifetime from the Java side
+
+	bool success = QValue::ReadHostVariable(varNameW, *q);
+	if (!success)
+	{
+		ThrowByName(env, "java/lang/RuntimeException", "QValue.readhostVariable() failed");
+		return 0;
+	}
 
 	return reinterpret_cast<jlong>(q);
 }
@@ -166,7 +173,13 @@ JNIEXPORT jint JNICALL Java_be_vib_bits_QValue_size(JNIEnv* env, jobject obj, ji
 	assert(ptr != 0);
 
 	QValue* q = reinterpret_cast<QValue*>(ptr);
-	return size(*q, dim);
+	return size(*q, static_cast<int>(dim));
+	// About the type cast to int in the line above:
+	// jint is a long, and if we call size(QValue, long) we call the quasar_dsl.h
+	// template <class T> INLINE QValue(QValue cal, T dim)
+	// and the resulting QValue (of type scalar) is then converted via "template <class R> operator R() const"
+	// in quasar_dsl.h to a long, but that type conversion does not support scalars, so instead of returning the value of the scalar,
+	// the result is just "long()", so always 0. Which is wrong.
 }
 
 template<typename ...Indices>
