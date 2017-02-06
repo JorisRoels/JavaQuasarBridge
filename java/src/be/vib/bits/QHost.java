@@ -5,8 +5,9 @@ public class QHost
 	public native static void init(String deviceName, boolean loadCompiler); // deviceName is "cuda" or "cpu" or ...
 	public native static void release();
 	
-	public native static void loadSourceModule(String modulePath); // load .q
-	public native static void loadBinaryModule(String modulePath); // load .qlib
+	public native static void loadSourceModule(String modulePath); // load .q (throws a RunTimeException if loading failed)
+	public native static void loadBinaryModule(String modulePath); // load .qlib (throws a RunTimeException if loading failed)
+	
 	public native static void loadModuleFromSource(String moduleName, String sourceString);
 	
 	public native static boolean unloadModule(String moduleName);
