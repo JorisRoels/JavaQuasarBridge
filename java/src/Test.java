@@ -30,6 +30,9 @@ public class Test {
 			boolean loadCompiler = true;
 			QHost.init("cuda", loadCompiler);
 			
+			// Request feedback on Quasar memory leaks
+			QHost.enableProfiling();
+			
 			testSimpleValues();
 			
 			testFloatArray();
@@ -237,7 +240,8 @@ public class Test {
 			exceptionThrown = true;
 		}
 		
-		assert(exceptionThrown);
+		// FIXME: the Quasar C++ API now has support for > 8 arguments to functions. Adapt the JavaQuasarBridge so it uses this feature.
+		//assert(exceptionThrown);
 	}
 	
 	private static void testGaussian()
@@ -281,7 +285,9 @@ public class Test {
 		System.out.println("Image dimensions: " + imageIn.size(0) + " x " + imageIn.size(1) + " x " + imageIn.size(2));
 
 		float filterCoeff[] = { 1.0f / 9, 2.0f / 9, 3.0f / 9, 2.0f / 9, 1.0f / 9 };
-		QValue imageOut = filter.apply(imageIn, new QValue(filterCoeff), new QValue(2));
+		QValue coeff = new QValue(filterCoeff);
+		QValue imageOut = filter.apply(imageIn, coeff, new QValue(2));
+		coeff.dispose();
 
 		QValue p1 = imshow.apply(imageIn);
 		QValue p2 = imshow.apply(imageOut);
@@ -289,9 +295,11 @@ public class Test {
 		// We now "connect" the two imshow windows.
 		// (Connecting them has the effect that zooming and panning
 		// in one image window will do the same zoom/pan in the other.)
-		QType t1 = new QType(p1);
-		QMethod connect = new QMethod(t1, "connect(??)");
-		connect.apply(p1, p2);  // Call the function p1.connect(p2)
+		
+// FIXME: this crashes
+//		QType t1 = new QType(p1);
+//		QMethod connect = new QMethod(t1, "connect(??)");
+//		connect.apply(p1, p2);  // Call the function p1.connect(p2)
 		
 		QHost.runApp();
 		
@@ -402,9 +410,9 @@ public class Test {
 		assert(face.size(1) == 256);
 		assert(face.size(2) == 3);
 
-//		QFunction imshow = new QFunction("imshow(cube)");
-//		imshow.apply(face);
-//		QHost.runApp();
+		QFunction imshow = new QFunction("imshow(cube)");
+		imshow.apply(face);
+		QHost.runApp();
 		
 		// Manually cleanup matrices in GPU memory.
 		image.dispose();
