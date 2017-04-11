@@ -4,7 +4,11 @@
 #include <jni.h>
 #include <string>
 
-namespace quasar { class QValue; }
+namespace quasar
+{
+	class QValue;
+	class exception_t;
+}
 
 // Returns an observing (non-owning) pointer to the index-th QValue in args.
 quasar::QValue* GetQValueArg(JNIEnv* env, jobjectArray args, jsize index);
@@ -12,6 +16,8 @@ quasar::QValue* GetQValueArg(JNIEnv* env, jobjectArray args, jsize index);
 // exception: name of the exception, for example "java/lang/RuntimeException"
 // message: in modified UTF-8
 void ThrowByName(JNIEnv *env, const std::string& exception, const std::string& message);
+
+void ThrowQException(JNIEnv *env, const quasar::exception_t &e);
 
 std::string UTF16toModifiedUTF8(const wchar_t * in);
 

@@ -193,7 +193,16 @@ jlong atNativeHelper(JNIEnv* env, jobject obj, Indices... indices)
 	// Index the QValue *q.
 	// Integer as well as QValue indices are supported.
 	// The latter is typically used for slicing QValue vectors/arrays/cubes/... by using a QRange as index.
-	QValue* value = new QValue((*q)(indices...));  // Since we need a pointer to a QValue we need to copy it.
+	QValue* value = nullptr;
+	try
+	{
+		value = new QValue((*q)(indices...));  // Since we need a pointer to a QValue we need to copy it.
+	}
+	catch (quasar::exception_t e)
+	{
+		ThrowQException(env, e);
+		return 0;
+	}
 
 	return reinterpret_cast<jlong>(value);
 }

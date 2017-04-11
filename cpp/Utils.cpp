@@ -33,6 +33,15 @@ void ThrowByName(JNIEnv *env, const std::string& exception, const std::string& m
 	env->DeleteLocalRef(cls);
 }
 
+void ThrowQException(JNIEnv *env, const quasar::exception_t &e)
+{
+	std::string source = UTF16toModifiedUTF8(e.source.get_buf());
+	std::string message = UTF16toModifiedUTF8(e.message.get_buf());
+	std::string stacktrace = UTF16toModifiedUTF8(e.stack_trace.get_buf());
+	ThrowByName(env, "be/vib/bits/QException", "\n---"
+			"\nSource:\n" + source + "\nMessage:\n" + message + "\nStacktrace:\n" + stacktrace + "\n---\n");
+}
+
 std::string UTF16toModifiedUTF8(const wchar_t* in)
 {
 	// The *modified* UTF-8 encoding that JNI uses is slightly different
