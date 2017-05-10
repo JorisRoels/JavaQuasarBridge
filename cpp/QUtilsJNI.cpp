@@ -3,6 +3,7 @@
 
 #include "quasar_dsl.h"
 
+#include <algorithm>
 #include <iostream>
 
 using namespace quasar;
@@ -10,6 +11,23 @@ using namespace quasar;
 extern IQuasarHost* host;
 
 extern jfieldID qvalue_ptr_fieldID;
+
+JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceMultiply(JNIEnv* env, jclass, jobject obj, jfloat s)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+	(*q) *= s;
+}
+
+JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceDivide(JNIEnv* env, jclass, jobject obj, jfloat s)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	(*q) /= s;  // CHECKME: what about division by zero - does this throw a Quasar exception? If so we probably want to catch it and turn it into a Java exception
+}
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleByteArrayNative(JNIEnv* env, jclass, jint width, jint height, jbyteArray pixels)
 {
@@ -96,11 +114,10 @@ JNIEXPORT jbyteArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleByteArrayFromCu
 			// (note: Quasar cubes use (y, x, z) indexing convention)
 			float gray = cube.data[pos2ind(sz, make_int3(y, x, 0))];
 
-			// Assumption: gray is in [0, 255]
+			// Clamp gray to [0, 255].
+			gray = std::min(std::max(0.0f, gray), 255.0f);
+
 			unsigned grayint = static_cast<unsigned>(gray);
-			// FIXME? what happens if gray (a float!) is outside of [0,255] should we explicitly round to the boundaries?
-			//        A typical case we want to support is a Quasar cube generated as a result of some image processing algorithm,
-			//        but some implementations of the more advanced algorithms do no necessarily generate a floating point result in [0, 255].
 
 			jbyte color = (jbyte)grayint;
 
@@ -139,11 +156,10 @@ JNIEXPORT jshortArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleShortArrayFrom
 			// (note: Quasar cubes use (y, x, z) indexing convention)
 			float gray = cube.data[pos2ind(sz, make_int3(y, x, 0))];
 
-			// Assumption: gray is in [0, 65535]
+			// Clamp gray to [0, 65535].
+			gray = std::min(std::max(0.0f, gray), 65535.0f);
+
 			unsigned grayint = static_cast<unsigned>(gray);
-			// FIXME? what happens if gray (a float!) is outside of [0,255] should we explicitly round to the boundaries?
-			//        A typical case we want to support is a Quasar cube generated as a result of some image processing algorithm,
-			//        but some implementations of the more advanced algorithms do no necessarily generate a floating point result in [0, 255].
 
 			jshort color = (jshort)grayint;
 

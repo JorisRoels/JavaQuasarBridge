@@ -2,6 +2,12 @@ package be.vib.bits;
 
 public class QUtils
 {
+	// Multiply all elements in the cube with the given scalar s. 
+	public native static void inplaceMultiply(QValue cube, float s);
+
+	// Divide all elements in the cube by the given scalar s. 
+	public native static void inplaceDivide(QValue cube, float s);
+	
 	public static QValue newCubeFromGrayscaleByteArray(int width, int height, byte[] pixels)
 	{
 		long p = newCubeFromGrayscaleByteArrayNative(width, height, pixels);
@@ -14,8 +20,8 @@ public class QUtils
 		return new QValue(new QNativePointer(p));
 	}
 	
-	public native static byte[] newGrayscaleByteArrayFromCube(int width, int height, QValue cube);	// assumes cube values are in [0, 255]
-	public native static short[] newGrayscaleShortArrayFromCube(int width, int height, QValue cube);	// assumes cube values are in [0, 65535]
+	public native static byte[] newGrayscaleByteArrayFromCube(int width, int height, QValue cube);	// cube values will be clipped to [0, 255] before storing them into the byte[]
+	public native static short[] newGrayscaleShortArrayFromCube(int width, int height, QValue cube);	// cube values will be clipped to [0, 65535] before storing them into the short[]
 
 	// Helpers:
 	public native static long newCubeFromGrayscaleByteArrayNative(int width, int height, byte[] pixels);
