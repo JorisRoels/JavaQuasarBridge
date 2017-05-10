@@ -112,6 +112,17 @@ public class QValue
 		return new QValue(new QNativePointer(p));
 	}
 	
+	public QValue size()
+	{
+		long p = sizeNative();
+		return new QValue(new QNativePointer(p));		
+	}
+	
+	// Shorthand for size().at(dim)
+	public native int size(int dim); // note: dim = 0 is the first dimension
+	
+	private native long sizeNative();
+	
 	private native long atNative(int m);
 	
 	private native long atNative(int m, int n);
@@ -171,8 +182,6 @@ public class QValue
 	    }
 	}
 	
-	public native int size(int dim); // note: dim = 0 is the first dimension
-		
 	private static native void initIDs();
 	
 	static

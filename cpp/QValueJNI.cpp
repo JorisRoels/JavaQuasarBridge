@@ -182,6 +182,18 @@ JNIEXPORT jint JNICALL Java_be_vib_bits_QValue_size(JNIEnv* env, jobject obj, ji
 	// the result is just "long()", so always 0. Which is wrong.
 }
 
+JNIEXPORT jlong JNICALL Java_be_vib_bits_QValue_sizeNative(JNIEnv* env, jobject obj)
+{
+	jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+	assert(ptr != 0);
+
+	QValue* q = reinterpret_cast<QValue*>(ptr);
+
+	QValue *s = new QValue(size(*q)); // Copy construct a QValue object on the heap with the result
+
+	return reinterpret_cast<jlong>(s);
+}
+
 template<typename ...Indices>
 jlong atNativeHelper(JNIEnv* env, jobject obj, Indices... indices)
 {
