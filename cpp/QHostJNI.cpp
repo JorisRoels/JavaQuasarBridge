@@ -137,7 +137,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_printMachineInfo(JNIEnv *, jclass)
 		std::wcout << "  platform: " << (machineInfo.cpu.platform == PLATFORM_WINDOWS ? "Windows" :
 			                         	 machineInfo.cpu.platform == PLATFORM_UNIX_LINUX ? "Unix/Linux" :
 										 machineInfo.cpu.platform == PLATFORM_MACOS ? "MacOS" : "Unknown") << std::endl;
-		std::wcout << "  platform version: " << machineInfo.cpu.platformVersion.ToString() << std::endl;
+		std::wcout << "  platform version: " << (LPCWSTR)machineInfo.cpu.platformVersion.ToString() << std::endl;
 		std::wcout << "  bits: " << machineInfo.cpu.archBits << std::endl;
 		std::wcout << "  total memory: ~" << machineInfo.cpu.totalMemory << " bytes" << std::endl; // totalMemory doesn't return exactly 16 GB on my 16 GB laptop ?!
 
