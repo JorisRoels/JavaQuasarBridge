@@ -17,4 +17,6 @@ public class QHost
 	public native static void enableProfiling(); // TODO: different profiling modes - for now always memleaks profiling
 	
 	public native static void runApp();
+	
+	public native static void printMachineInfo();
 }

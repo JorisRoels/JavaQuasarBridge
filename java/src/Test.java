@@ -1,4 +1,9 @@
+// TODO: get rid of Q prefix but move all classes to be.vib.bits.QuasarBridge? or JavaQusarBridge?
 
+import java.io.IOException;
+import java.nio.file.Files;
+
+import be.vib.bits.JavaQuasarBridge;
 import be.vib.bits.QExecutor;
 import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
@@ -6,6 +11,7 @@ import be.vib.bits.QMethod;
 import be.vib.bits.QRange;
 import be.vib.bits.QType;
 import be.vib.bits.QTypeBuilder;
+import be.vib.bits.QUtils;
 import be.vib.bits.QValue;
 
 public class Test {
@@ -13,9 +19,21 @@ public class Test {
 	final static String quasarInstallationFolder = "E:\\Program Files\\Quasar\\";
 	
 	static
-	{		
-		System.loadLibrary("JavaQuasarBridge"); // loads JavaQuasarBridge.dll (on Windows)
-		System.out.println("JavaQuasarBridge loaded.");
+	{				
+		try
+		{
+			System.out.println("About to extract and load JavaQuasarBridge from JAR.");
+			
+			String tempFolder = Files.createTempDirectory("vib_bits_javaquasarbridge_test_").toString();
+			boolean useEmbeddedQuasar = false;   // false means we will not use the embedded quasar libraries because those do not support Quasar compilation and we need to be able to test compilation
+			JavaQuasarBridge.loadLibrary(tempFolder, useEmbeddedQuasar);
+						
+			System.out.println("JavaQuasarBridge loaded.");
+		}
+		catch (ClassNotFoundException | IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args)
@@ -30,6 +48,8 @@ public class Test {
 			boolean loadCompiler = true;
 			QHost.init("cuda", loadCompiler);
 			
+			QHost.printMachineInfo();
+			
 			// Request feedback on Quasar memory leaks
 			QHost.enableProfiling();
 			
@@ -38,6 +58,8 @@ public class Test {
 			testFloatArray();
 
 			testIntArray();
+			
+			testInplaceOps();
 
 			testLoadSource();
 			
@@ -135,6 +157,21 @@ public class Test {
 		
 	    // Immediate manual cleanup - it's a "large" array.
 		q.dispose();
+	}
+	
+	private static void testInplaceOps()
+	{
+		QFunction print = new QFunction("print(...)");
+		assert(QHost.functionExists("print"));
+		
+		QValue q = new QRange(0, 100);	
+		print.apply(q);		
+		QUtils.inplaceDivide(q, 10);		
+		print.apply(q);
+		QUtils.inplaceMultiply(q, 10);
+		print.apply(q);
+
+		q.dispose();		
 	}
 
 	private static void testLoadSource()
@@ -310,7 +347,7 @@ public class Test {
 	
 	private static void testArrayAccess()
 	{		
-		QHost.loadSourceModule(quasarInstallationFolder + "Library\\dtcwt.q");
+		QHost.loadSourceModule(quasarInstallationFolder + "Library\\dtcwt.q"); // IMPROVEME: add our own .q file specifically for this purpose, so we can avoid the dependency on this Quasar installation file
 		
 		QValue selcw = QValue.readhostVariable("filtercoeff_selcw");  // filtercoeff_selcw is a 6 x 6 cell array		
 		assert(selcw.size(0) == 6);
