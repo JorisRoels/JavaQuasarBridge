@@ -49,7 +49,6 @@ cpp\QRangeJNI.cpp ^
 rem Note: To obtain class descriptors for JNI, use e.g. "javap -cp build\class -s -p be.vib.bits.QValue"
 
 copy build\JavaQuasarBridge.dll build\libraries\win64
-rem copy "e:\Program Files\Quasar\Quasar.Runtime.dll" build\libraries\win64
 
 rmdir /s /q dist
 mkdir dist
