@@ -264,21 +264,33 @@ public class Test {
 	{
 		QFunction f = new QFunction("print(...)");
 		
+		// QFunction.apply() supports up to 10 arguments
 		boolean exceptionThrown = false;
 		try
 		{
-			// QFunction.apply() does not support more than 8 arguments and should throw an exception.
 			f.apply(new QValue(1), new QValue(2), new QValue(3), new QValue(4),
 					new QValue(5), new QValue(6), new QValue(7), new QValue(8),
-					new QValue(9));
+					new QValue(9), new QValue(10));
 		}
 		catch (java.lang.IllegalArgumentException e)
 		{
 			exceptionThrown = true;
 		}
-		
-		// FIXME: the Quasar C++ API now has support for > 8 arguments to functions. Adapt the JavaQuasarBridge so it uses this feature.
-		//assert(exceptionThrown);
+		assert(!exceptionThrown);
+
+		// QFunction.apply() does not support more than 10 arguments and should throw an exception.
+		exceptionThrown = false;
+		try
+		{
+			f.apply(new QValue(1), new QValue(2), new QValue(3), new QValue(4),
+					new QValue(5), new QValue(6), new QValue(7), new QValue(8),
+					new QValue(9), new QValue(10), new QValue(11));
+		}
+		catch (java.lang.IllegalArgumentException e)
+		{
+			exceptionThrown = true;
+		}
+		assert(exceptionThrown);
 	}
 	
 	private static void testGaussian()

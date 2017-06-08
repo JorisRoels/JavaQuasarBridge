@@ -8,10 +8,17 @@ public class QFunction extends QValue
 		ptr = newQFunction(signature);
 	}
 	
-	// Note: the maximum supported number of args is 8.
-	// If you pass more arguments to apply() it will throw an IllegalArgumentException. 
+	// Note: the maximum supported number of args is 10.
+	//       If you pass more arguments to apply() it will throw an IllegalArgumentException.
 	//
-	// TODO?
+	// Implementation note 1:
+	//
+	// It would be nice if the Quasar API supported calling functions with a pointer to an array of QValue's and a number of values.
+	// I don't think we can leverage Quasar's current API of using templates with fixed size arrays to convert Java arrays of QValues to arguments
+	// for a Quasar function.
+	//
+	// Implementation note 2:
+	//
 	// We could add some syntactic sugar and define an
 	//    apply(Object...)
 	// instead of

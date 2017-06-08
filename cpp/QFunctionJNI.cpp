@@ -24,20 +24,23 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_applyNative(JNIEnv* env, jobj
 {
 	jsize numArgs = env->GetArrayLength(args);
 
-	if (numArgs > 8)
+	if (numArgs > 10)
 	{
-		ThrowByName(env, "java/lang/IllegalArgumentException", "QFunction.apply(QValue... args) does not support more than 8 arguments in args.");
+		ThrowByName(env, "java/lang/IllegalArgumentException", "QFunction.apply(QValue... args) does not support more than 10 arguments in args.");
 		return 0;
 	}
 
 	QValue * arg1 = nullptr, *arg2 = nullptr,
 		   * arg3 = nullptr, *arg4 = nullptr,
 		   * arg5 = nullptr, *arg6 = nullptr,
-		   * arg7 = nullptr, *arg8 = nullptr;
+		   * arg7 = nullptr, *arg8 = nullptr,
+		   * arg9 = nullptr, *arg10 = nullptr;
 
 	switch (numArgs)
 	{
 		// Deliberate fall-through
+		case 10: arg10 = GetQValueArg(env, args, 9);
+		case 9: arg9 = GetQValueArg(env, args, 8);
 		case 8: arg8 = GetQValueArg(env, args, 7);
 		case 7: arg7 = GetQValueArg(env, args, 6);
 		case 6: arg6 = GetQValueArg(env, args, 5);
@@ -68,17 +71,15 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_applyNative(JNIEnv* env, jobj
 			case 6: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6)); break;
 			case 7: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7)); break;
 			case 8: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8)); break;
+			case 9: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8, *arg9)); break;
+			case 10: resultCopy = new QValue((*f)(*arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8, *arg9, *arg10)); break;
 			default: return 0;
 		}
 		return reinterpret_cast<jlong>(resultCopy);
 	}
 	catch (exception_t e)
 	{
-		std::string source = UTF16toModifiedUTF8(e.source.get_buf());
-		std::string message = UTF16toModifiedUTF8(e.message.get_buf());
-		std::string stacktrace = UTF16toModifiedUTF8(e.stack_trace.get_buf());
-		ThrowByName(env, "be/vib/bits/QException", "\n---"
-				"\nSource:\n" + source + "\nMessage:\n" + message + "\nStacktrace:\n" + stacktrace + "\n---\n");
+		ThrowQException(env, e);
 		return 0;
 	}
 }
