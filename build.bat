@@ -1,5 +1,6 @@
 set MY_QUASAR=E:\Program Files\Quasar
 set MY_JAVA=E:\Program Files\Java\jdk1.8.0_92
+set VERSION=0.0.1
 
 rmdir /s /q build
 mkdir build\class
@@ -52,4 +53,4 @@ copy build\JavaQuasarBridge.dll build\libraries\win64
 
 rmdir /s /q dist
 mkdir dist
-jar cvf dist\JavaQuasarBridge.jar -C build\class . -C build libraries
+jar cvf dist\JavaQuasarBridge-%VERSION%.jar -C build\class . -C build libraries
