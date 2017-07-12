@@ -7,7 +7,6 @@ import be.vib.bits.JavaQuasarBridge;
 import be.vib.bits.QExecutor;
 import be.vib.bits.QFunction;
 import be.vib.bits.QHost;
-import be.vib.bits.QMethod;
 import be.vib.bits.QRange;
 import be.vib.bits.QType;
 import be.vib.bits.QTypeBuilder;
@@ -51,7 +50,7 @@ public class Test {
 			QHost.printMachineInfo();
 			
 			// Request feedback on Quasar memory leaks
-			QHost.enableProfiling();
+			QHost.enableProfiling(QHost.ProfilingMode.MEMLEAKS);
 			
 			testSimpleValues();
 			

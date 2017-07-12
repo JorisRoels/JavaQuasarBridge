@@ -6,6 +6,7 @@
 #include "WideString.h"
 
 #include <iostream>
+#include <cassert>
 
 using namespace quasar;
 
@@ -16,7 +17,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_init(JNIEnv *env, jclass, jstring 
 {
 	if (host != nullptr)
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "There can be only one Quasar host. Probably QHost.init() was called already. If you want to re-initialize the Quasar host then call QHost.release() first.");
+		ThrowByName(env, "java/lang/RuntimeException", "The Quasar host was already initialized, and initialization can only occur once.");
 		return;
 	}
 
@@ -103,10 +104,62 @@ JNIEXPORT jboolean JNICALL Java_be_vib_bits_QHost_functionExists(JNIEnv *env, jc
 	return exists ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT void JNICALL Java_be_vib_bits_QHost_enableProfiling(JNIEnv* env, jclass)
+namespace
+{
+	// Given a Java enum object that represents a Quasar profiling mode,
+    // returns the corresponding C++ enum.
+	ProfilingModes quasarProfilingMode(JNIEnv *env, jobject profilingEnum)
+	{
+		jclass enumClass = env->FindClass("be/vib/bits/QHost$ProfilingMode");
+		assert(enumClass != nullptr);
+
+		jmethodID nameMethod = env->GetMethodID(enumClass, "name", "()Ljava/lang/String;");
+		assert(nameMethod != nullptr);
+
+		jstring enumStringValue = (jstring)env->CallObjectMethod(profilingEnum, nameMethod);
+		const char* value = env->GetStringUTFChars(enumStringValue, 0);
+		if (value == nullptr)
+		{
+			ThrowByName(env, "java/lang/RuntimeException", "Failed to get value string of ProfilingMode object");
+			return PROFILE_MEMLEAKS;
+		}
+
+		ProfilingModes profilingMode;
+		if (!strcmp(value, "MEMLEAKS"))
+		{
+			profilingMode = PROFILE_MEMLEAKS;
+		}
+		else if (!strcmp(value, "ACCURACY"))
+		{
+			profilingMode = PROFILE_ACCURACY;
+		}
+		else if (!strcmp(value, "EXECUTIONTIME"))
+		{
+			profilingMode = PROFILE_EXECUTIONTIME;
+		}
+		else
+		{
+			ThrowByName(env, "java/lang/RuntimeException", "Unsupported Quasar profiling mode"); // IMPROVEME: add name of unsupported mode in exception string
+		}
+
+		env->ReleaseStringUTFChars(enumStringValue, value);
+
+		return profilingMode;
+	}
+}
+
+JNIEXPORT void JNICALL Java_be_vib_bits_QHost_enableProfiling(JNIEnv* env, jclass, jobject profilingEnum)
 {
 	assert(host != nullptr);
-	bool success = host->EnableProfiling(PROFILE_MEMLEAKS);  // also possible: PROFILE_ACCURACY or PROFILE_EXECUTIONTIME
+
+	ProfilingModes profilingMode = quasarProfilingMode(env, profilingEnum);
+	if (env->ExceptionCheck() == JNI_TRUE)
+	{
+		// An exception is pending - bail out.
+		return;
+	}
+
+	bool success = host->EnableProfiling(profilingMode);
 	if (!success)
 	{
 		ThrowByName(env, "java/lang/RuntimeException", "QHost.enableProfile() failed");

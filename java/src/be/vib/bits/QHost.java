@@ -14,7 +14,8 @@ public class QHost
 	
 	public native static boolean functionExists(String name);
 	
-	public native static void enableProfiling(); // TODO: different profiling modes - for now always memleaks profiling
+	public enum ProfilingMode { MEMLEAKS }; // TODO: test ACCURACY and EXECUTIONTIME profiling modes
+	public native static void enableProfiling(ProfilingMode mode);
 	
 	public native static void runApp();
 	
