@@ -23,6 +23,8 @@ java\src\be\vib\bits\jartools\Jar.java ^
 java\src\Test.java ^
 java\src\Example1.java
 
+@if %errorlevel% neq 0 exit /b %errorlevel%
+
 javah -cp java\src -d build\include be.vib.bits.QHost
 javah -cp java\src -d build\include be.vib.bits.QValue
 javah -cp java\src -d build\include be.vib.bits.QFunction
@@ -47,9 +49,12 @@ cpp\QMethodJNI.cpp ^
 cpp\QRangeJNI.cpp ^
 "%MY_QUASAR%\include\quasar_dsl.cpp" "%MY_QUASAR%\include\quasar_host.cpp" /I"%MY_JAVA%\include\win32" /I"%MY_JAVA%\include" /Ibuild\include /I"%MY_QUASAR%\include" /Fobuild\ /Febuild\JavaQuasarBridge.dll
 
+@if %errorlevel% neq 0 exit /b %errorlevel%
+
 rem Note: To obtain class descriptors for JNI, use e.g. "javap -cp build\class -s -p be.vib.bits.QValue"
 
 copy build\JavaQuasarBridge.dll build\libraries\win64
+@if %errorlevel% neq 0 exit /b %errorlevel%
 
 rmdir /s /q dist
 mkdir dist
