@@ -60,7 +60,7 @@ public class QValue
 	
 	public native String getString();
 	
-	public native void dispose(); // TODO: does this need to be synchronized?
+	public native void dispose();
 	
 	public native void retain();
 
