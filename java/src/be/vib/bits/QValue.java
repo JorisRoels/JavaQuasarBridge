@@ -140,47 +140,6 @@ public class QValue
 	public native void setField(String fieldName, QValue value);
 	
 	private static native long readhostVariableNative(String varName);
-
-	@Override
-	protected void finalize() throws Throwable
-	{
-		// Note: there are several potential pitfalls here:
-		//       - no guarantee finalize() gets called (?)
-		//       - called in a separate finalizer thread instead of the Quasar thread
-		//       - may be called concurrently
-		//       - possibly called after Quasar host is already released
-		//       - ...
-		// Instead of relying on a finalizer, we're considering to
-		// implement our own QValue registry that automatically keeps
-		// track of created and deleted QValue objects. The user is then
-		// responsible for manually calling a cleanup function
-		// before program termination that will free all
-		// QValue objects that have not been manually deleted yet. Additionally
-		// the user can still manually delete individual QValue objects earlier on,
-		// which makes sense especially if the QValue object wraps a large array.
-		// This registry approach would avoid the fragility of a finalize(),
-		// but has the disadvantage of not automatically freeing QValues
-		// that the user never created a reference for, such as rvalues passed directly
-		// to a function. The user cannot free them (it's an rvalue) and this
-		// registry cannot either (it doesn't know about the lifetime of the QValue)
-		// until the user calls the cleanup() function.
-		
-		// FIXME:
-		// In an actual program heaviliy using the JavaQuasarBridge we've seen runtime errors
-		// where Quasar complains about usage of a DISPOSED matrix! The error disappears
-		// when the finalizer code below is commented out...
-		// (Not sure if this is caused by a silly bug, or a design flaw.)
-//	    try
-//	    {
-//	    	// Queue the delete on the Quasar thread.
-//	    	System.out.println("QValue.finalize() for ptr = " + ptr);
-//			QExecutor.getInstance().execute(() -> { delete(); });
-//	    }
-//	    finally
-	    {
-	        super.finalize();
-	    }
-	}
 	
 	private static native void initIDs();
 	
