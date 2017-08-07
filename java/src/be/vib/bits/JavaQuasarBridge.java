@@ -6,26 +6,18 @@ import be.vib.bits.jartools.Jar;
 
 public class JavaQuasarBridge
 {
-	// TODO: check platform (windows, linux, mac)
-	// TODO: check architecture (32/64 bit)
-	public static void loadLibrary(String tempDir, boolean useEmbeddedQuasarLibrary) throws IOException, ClassNotFoundException
+	// TODO: check platform (windows, linux, mac) and architecture (32/64 bit) - for now only 64bit Windows is supported
+	public static void loadLibrary(String tempDir) throws IOException, ClassNotFoundException
 	{
-		System.out.println("tempDir = " + tempDir);
-		
-		if (useEmbeddedQuasarLibrary)
-		{
-			Jar.extractResource(tempDir, "libraries/win64/Quasar.Runtime.dll");
-			// TODO: and a lot more!
-		}
-
+		System.out.println("Extracting Java-Quasar bridge to temporary folder " + tempDir);		
 		String bridgeLibrary = Jar.extractResource(tempDir, "libraries/win64/JavaQuasarBridge.dll");
 
 		System.out.println("Loading " + bridgeLibrary);
 		System.load(bridgeLibrary);
 
-		// FIXME: delete temporary files / directories on exit
+		// TODO: delete temporary files / directories on exit
 		// File outputFile = bridgeLibraryPath.toFile();
-		// outputFile.deleteOnExit();    // FIXME: this does not seem to work?
+		// outputFile.deleteOnExit();    // this does not seem to work?
 	}
 	
 }
