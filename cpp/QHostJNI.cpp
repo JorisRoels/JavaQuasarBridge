@@ -49,7 +49,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_loadSourceModule(JNIEnv *env, jcla
 
 	WideString pathW(env, modulePath);
 
-	LPCWSTR errorW;
+	LPCTSTR errorW;
 	bool loaded = host->LoadSourceModule(pathW, &errorW);
 	if (!loaded)
 	{
@@ -63,7 +63,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_loadBinaryModule(JNIEnv *env, jcla
 
 	WideString pathW(env, modulePath);
 
-	LPCWSTR errorW;
+	LPCTSTR errorW;
 	bool loaded = host->LoadBinaryModule(pathW, &errorW);
 	if (!loaded)
 	{
@@ -78,7 +78,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_loadModuleFromSource(JNIEnv *env, 
 	WideString moduleW(env, moduleName);
 	WideString sourceW(env, sourceString);
 
-	LPCWSTR errorW;
+	LPCTSTR errorW;
 	bool loaded = host->LoadModuleFromSource(moduleW, sourceW, &errorW);
 	if (!loaded)
 	{
@@ -181,61 +181,67 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_printMachineInfo(JNIEnv *, jclass)
 	try
 	{
 		const MachineInfo machineInfo = host->GetMachineInfo();
-		std::wcout << "Host name: " << machineInfo.hostName << std::endl;
-		std::wcout << "Domain name: " << machineInfo.domainName << std::endl;
-		std::wcout << "IP address: " << machineInfo.ipAddress << std::endl;
-		std::wcout << "CPU: " << std::endl;
-		std::wcout << "  name: " << machineInfo.cpu.cpuName << std::endl;
-		std::wcout << "  cores: " << machineInfo.cpu.numCPUcores << std::endl;
-		std::wcout << "  platform: " << (machineInfo.cpu.platform == PLATFORM_WINDOWS ? "Windows" :
-			                         	 machineInfo.cpu.platform == PLATFORM_UNIX_LINUX ? "Unix/Linux" :
-										 machineInfo.cpu.platform == PLATFORM_MACOS ? "MacOS" : "Unknown") << std::endl;
-		std::wcout << "  platform version: " << (LPCWSTR)machineInfo.cpu.platformVersion.ToString() << std::endl;
-		std::wcout << "  bits: " << machineInfo.cpu.archBits << std::endl;
-		std::wcout << "  total memory: ~" << machineInfo.cpu.totalMemory << " bytes" << std::endl; // totalMemory doesn't return exactly 16 GB on my 16 GB laptop ?!
+		tprintf(_T("Host name: %s\n"), machineInfo.hostName);
+		tprintf(_T("Domain name: %s\n"), machineInfo.domainName);
+		tprintf(_T("IP address: %s\n"), machineInfo.ipAddress);
+		tprintf(_T("CPU:\n"));
+		tprintf(_T("  name: %s\n"), machineInfo.cpu.cpuName);
+		tprintf(_T("  cores: %d\n"), machineInfo.cpu.numCPUcores);
+		tprintf(_T("  platform: %s\n"), machineInfo.cpu.platform == PLATFORM_WINDOWS ? _T("Windows") :
+			                         	machineInfo.cpu.platform == PLATFORM_UNIX_LINUX ? _T("Unix/Linux") :
+										machineInfo.cpu.platform == PLATFORM_MACOS ? _T("MacOS") : _T("Unknown"));
+		tprintf(_T("  platform version: %s\n"), (LPCTSTR)machineInfo.cpu.platformVersion.ToString());
+		tprintf(_T("  bits: %d\n"), machineInfo.cpu.archBits);
+		tprintf(_T("  total memory: ~%ld bytes\n"), machineInfo.cpu.totalMemory); // totalMemory doesn't return exactly 16 GB on my 16 GB laptop ?!
 
 		if (machineInfo.cuda.installed)
 		{
 			string_t cudaRuntimeVer = machineInfo.cuda.runtimeVersion.ToString();
 			string_t cudaDriverVer = machineInfo.cuda.driverVersion.ToString();
 
-			std::wcout << "CUDA installed. " << std::endl;
-			std::wcout << "  runtime version " << (LPCWSTR)cudaRuntimeVer << std::endl;
-			std::wcout << "  driver version " << (LPCWSTR)cudaDriverVer << std::endl;
+			tprintf(_T("CUDA installed.\n"));
+			tprintf(_T("  runtime version %s\n"), (LPCTSTR)cudaRuntimeVer);
+			tprintf(_T("  driver version %s\n"), (LPCTSTR)cudaDriverVer);;
 		}
 		else
 		{
-			std::wcout << "CUDA not installed." << std::endl;
+			tprintf(_T("CUDA not installed.\n"));
 		}
 
 		if (machineInfo.opencl.installed)
 		{
-			std::wcout << "OpenCL installed." << std::endl;
+			tprintf(_T("OpenCL installed.\n"));
 			for (int i = 0; i < machineInfo.opencl.numPlatforms; ++i)
 			{
 				const OpenCLPlatformInfo *platform = machineInfo.opencl.platforms[i];
-				std::wcout << "  " << i + 1 << " '" << platform->name << "' vendor: '" << platform->vendor << "' version: '" << platform->version << "'" << std::endl;
+				tprintf(_T("  %d '%s' vendor: '%s' version: '%s'\n"), i + 1, platform->name, platform->vendor, platform->version);
 			}
 		}
 		else
 		{
-			std::wcout << "OpenCL not installed." << std::endl;
+			tprintf(_T("OpenCL not installed.\n"));
 		}
 
-		std::wcout << "Available computation devices:" << std::endl;
+		tprintf(_T("Available computation devices:\n"));
 		for (int i = 0; i < machineInfo.numComputationDevices; ++i)
 		{
 			const ComputationDeviceInfo *dev = machineInfo.computationDevices[i];
-			std::wcout << "  " << i + 1 << " " << (dev->target == DEVTYPE_CPU ? "cpu" :
-				                                   dev->target == DEVTYPE_CUDA ? "cuda" :
-			                                       dev->target == DEVTYPE_OPENCL ? "opencl" :
-                                                   dev->target == DEVTYPE_HYPERION ? "hyperion" : "unknown") << " device '" << dev->name << "'" << std::endl;
+			tprintf(_T("  %d %s device '%s'\n"), i + 1,
+					                             (dev->target == DEVTYPE_CPU ? _T("cpu") :
+				                                  dev->target == DEVTYPE_CUDA ? _T("cuda") :
+			                                      dev->target == DEVTYPE_OPENCL ? _T("opencl") :
+                                                  dev->target == DEVTYPE_HYPERION ? _T("hyperion") : _T("unknown")),
+												 dev->name);
 		}
 
 		host->FreeMachineInfo(const_cast<MachineInfo&>(machineInfo));
 	}
 	catch (exception_t ex)
 	{
-		std::wcout << "An error occurred: " << (LPCWSTR)ex.message << std::endl;
+		tprintf(_T("An error occurred: %s\n"), (LPCTSTR)ex.message);
+	}
+	catch (...)
+	{
+		tprintf(_T("Unknown exception caught in printMachineInfo\n"));
 	}
 }

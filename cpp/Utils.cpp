@@ -42,16 +42,20 @@ void ThrowQException(JNIEnv *env, const quasar::exception_t &e)
 			"\nSource:\n" + source + "\nMessage:\n" + message + "\nStacktrace:\n" + stacktrace + "\n---\n");
 }
 
-std::string UTF16toModifiedUTF8(const wchar_t* in)
+// Given a null-terminated modified UTF-8 encoded string,
+// returns a regular UTF-8 std::string.
+std::string UTF16toModifiedUTF8(const TCHAR* in)
 {
 	// The *modified* UTF-8 encoding that JNI uses is slightly different
 	// from regular UTF-8 encoding. See thee JNI specification for details.
 	// https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/types.html#modified_utf_8_strings
 
+	static_assert(sizeof(TCHAR) == 2, "Expected TCHAR to be 2 bytes");
+
 	std::string out;
 	while (*in != 0)
 	{
-		wchar_t w = *in++;
+		TCHAR w = *in++;
 		if (w >= 0x0001 && w <= 0x007f)
 		{
 			out.push_back(static_cast<char>(w));
@@ -67,19 +71,6 @@ std::string UTF16toModifiedUTF8(const wchar_t* in)
 			out.push_back(static_cast<char>(0x80 | ((w >>  6) & 0x3f)));
 			out.push_back(static_cast<char>(0x80 | ( w        & 0x3f)));
 		}
-
-		static_assert(sizeof(wchar_t) == 2, "Expected wchar_t to be 2 bytes");
-
-//      On some platforms wchar_t is > 32 bits. In that case the code below can be commented out.
-//		else // code points above U+FFFF (supplementary characters)
-//		{
-//			out.push_back(static_cast<char>(0xed));
-//			out.push_back(static_cast<char>(0xa0 | ((w >> 16) & 0x0f)));
-//			out.push_back(static_cast<char>(0x80 | ((w >> 10) & 0x3f)));
-//			out.push_back(static_cast<char>(0xed));
-//			out.push_back(static_cast<char>(0xb0 | ((w >>  6) & 0x0f)));
-//			out.push_back(static_cast<char>(0x80 | ( w        & 0x3f)));
-//		}
 	}
 	return out;
 }

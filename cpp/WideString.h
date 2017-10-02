@@ -3,7 +3,7 @@
 
 #include <jni.h>
 
-typedef const wchar_t *LPCWSTR;
+#include "char16_string.h"   // Quasar include file, defines LPCTSTR and TCHAR
 
 // Helper class for safe and convenient read access to a jstring.
 class WideString
@@ -11,8 +11,8 @@ class WideString
 	public:
 		WideString(JNIEnv *env, jstring jstr);
 		~WideString();
-		operator LPCWSTR() const;
-		wchar_t const* data() const;
+		operator LPCTSTR() const;
+		TCHAR const* data() const;
 
 	private:
 		JNIEnv* env;

@@ -175,5 +175,5 @@ JNIEXPORT jshortArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleShortArrayFrom
 	return pixels;
 }
 
-// FIXME: unify byte and short versions using a template function or so
+// IMPROVEME: can we unify byte and short versions using a template function or so
 

@@ -3,6 +3,7 @@
 
 #include <jni.h>
 #include <string>
+#include "char16_string.h"
 
 namespace quasar
 {
@@ -19,6 +20,6 @@ void ThrowByName(JNIEnv *env, const std::string& exception, const std::string& m
 
 void ThrowQException(JNIEnv *env, const quasar::exception_t &e);
 
-std::string UTF16toModifiedUTF8(const wchar_t * in);
+std::string UTF16toModifiedUTF8(const TCHAR * in);
 
 #endif
