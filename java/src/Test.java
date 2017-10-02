@@ -24,8 +24,7 @@ public class Test {
 			System.out.println("About to extract and load JavaQuasarBridge from JAR.");
 			
 			String tempFolder = Files.createTempDirectory("vib_bits_javaquasarbridge_test_").toString();
-			boolean useEmbeddedQuasar = false;   // false means we will not use the embedded quasar libraries because those do not support Quasar compilation and we need to be able to test compilation
-			JavaQuasarBridge.loadLibrary(tempFolder, useEmbeddedQuasar);
+			JavaQuasarBridge.loadLibrary(tempFolder);
 						
 			System.out.println("JavaQuasarBridge loaded.");
 		}
