@@ -192,7 +192,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_printMachineInfo(JNIEnv *, jclass)
 										machineInfo.cpu.platform == PLATFORM_MACOS ? _T("MacOS") : _T("Unknown"));
 		tprintf(_T("  platform version: %s\n"), (LPCTSTR)machineInfo.cpu.platformVersion.ToString());
 		tprintf(_T("  bits: %d\n"), machineInfo.cpu.archBits);
-		tprintf(_T("  total memory: ~%ld bytes\n"), machineInfo.cpu.totalMemory); // totalMemory doesn't return exactly 16 GB on my 16 GB laptop ?!
+		tprintf(_T("  memory: %.1f GB\n"), machineInfo.cpu.totalMemory / static_cast<float>(1024 * 1024 * 1024)); // totalMemory is the same as the value shown in Task Manager (but not identical to the raw chip size)
 
 		if (machineInfo.cuda.installed)
 		{
