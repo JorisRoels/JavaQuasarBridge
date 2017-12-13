@@ -2,8 +2,9 @@
 
 #include "quasar_dsl.h"
 
-#include "Utils.h"
+#include "ExceptionHandling.h"
 #include "WideString.h"
+#include "Utils.h" // GetQValueArg()
 
 #include <iostream>
 
@@ -13,52 +14,60 @@ extern jfieldID qvalue_ptr_fieldID;
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_newQFunction(JNIEnv *env, jclass, jstring signature)
 {
-	WideString signatureW(env, signature);
+	try
+	{
+		WideString signatureW(env, signature);
 
-	Function* q = new Function(signatureW);
+		Function* q = new Function(signatureW);
 
-	return reinterpret_cast<jlong>(q);
+		return reinterpret_cast<jlong>(q);
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+		return 0;
+	}
 }
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_applyNative(JNIEnv* env, jobject obj, jobjectArray args)
 {
-	jsize numArgs = env->GetArrayLength(args);
-
-	if (numArgs > 10)
-	{
-		ThrowByName(env, "java/lang/IllegalArgumentException", "QFunction.apply(QValue... args) does not support more than 10 arguments in args.");
-		return 0;
-	}
-
-	QValue * arg1 = nullptr, *arg2 = nullptr,
-		   * arg3 = nullptr, *arg4 = nullptr,
-		   * arg5 = nullptr, *arg6 = nullptr,
-		   * arg7 = nullptr, *arg8 = nullptr,
-		   * arg9 = nullptr, *arg10 = nullptr;
-
-	switch (numArgs)
-	{
-		// Deliberate fall-through
-		case 10: arg10 = GetQValueArg(env, args, 9);
-		case 9: arg9 = GetQValueArg(env, args, 8);
-		case 8: arg8 = GetQValueArg(env, args, 7);
-		case 7: arg7 = GetQValueArg(env, args, 6);
-		case 6: arg6 = GetQValueArg(env, args, 5);
-		case 5: arg5 = GetQValueArg(env, args, 4);
-		case 4: arg4 = GetQValueArg(env, args, 3);
-		case 3: arg3 = GetQValueArg(env, args, 2);
-		case 2: arg2 = GetQValueArg(env, args, 1);
-		case 1: arg1 = GetQValueArg(env, args, 0);
-		case 0: break;
-		default: return 0;
-	}
-
-	jlong funcPtr = env->GetLongField(obj, qvalue_ptr_fieldID);
-	assert(funcPtr != 0);
-	Function* f = reinterpret_cast<Function*>(funcPtr);
-
 	try
 	{
+		jsize numArgs = env->GetArrayLength(args);
+
+		if (numArgs > 10)
+		{
+			ThrowJavaException(env, "java/lang/IllegalArgumentException", "QFunction.apply(QValue... args) does not support more than 10 arguments in args.");
+			return 0;
+		}
+
+		QValue * arg1 = nullptr, *arg2 = nullptr,
+			   * arg3 = nullptr, *arg4 = nullptr,
+			   * arg5 = nullptr, *arg6 = nullptr,
+			   * arg7 = nullptr, *arg8 = nullptr,
+			   * arg9 = nullptr, *arg10 = nullptr;
+
+		switch (numArgs)
+		{
+			// Deliberate fall-through
+			case 10: arg10 = GetQValueArg(env, args, 9);
+			case 9: arg9 = GetQValueArg(env, args, 8);
+			case 8: arg8 = GetQValueArg(env, args, 7);
+			case 7: arg7 = GetQValueArg(env, args, 6);
+			case 6: arg6 = GetQValueArg(env, args, 5);
+			case 5: arg5 = GetQValueArg(env, args, 4);
+			case 4: arg4 = GetQValueArg(env, args, 3);
+			case 3: arg3 = GetQValueArg(env, args, 2);
+			case 2: arg2 = GetQValueArg(env, args, 1);
+			case 1: arg1 = GetQValueArg(env, args, 0);
+			case 0: break;
+			default: return 0;
+		}
+
+		jlong funcPtr = env->GetLongField(obj, qvalue_ptr_fieldID);
+		assert(funcPtr != 0);
+		Function* f = reinterpret_cast<Function*>(funcPtr);
+
 		QValue* resultCopy = nullptr;
 		switch (numArgs)
 		{
@@ -77,9 +86,9 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QFunction_applyNative(JNIEnv* env, jobj
 		}
 		return reinterpret_cast<jlong>(resultCopy);
 	}
-	catch (exception_t e)
+	catch (...)
 	{
-		ThrowQException(env, e);
+		RethrowAsJavaException(env);
 		return 0;
 	}
 }

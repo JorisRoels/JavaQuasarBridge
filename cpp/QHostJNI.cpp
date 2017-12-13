@@ -2,7 +2,8 @@
 
 #include "quasar_host.h"
 
-#include "Utils.h"
+#include "ExceptionHandling.h"
+#include "Encoding.h"
 #include "WideString.h"
 
 #include <iostream>
@@ -15,93 +16,143 @@ IQuasarHost* host = nullptr;
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_init(JNIEnv *env, jclass, jstring deviceName, jboolean loadCompiler)
 {
-	if (host != nullptr)
+	try
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "The Quasar host was already initialized, and initialization can only occur once.");
-		return;
+		if (host != nullptr)
+		{
+			ThrowJavaException(env, "java/lang/RuntimeException", "The Quasar host was already initialized, and initialization can only occur once.");
+			return;
+		}
+
+		WideString deviceW(env, deviceName);
+
+		host = quasar::IQuasarHost::Create(deviceW, loadCompiler == JNI_TRUE);
+		if (host == nullptr)
+		{
+			ThrowJavaException(env, "java/lang/RuntimeException", "QHost.init() failed for an unknown reason.");
+		}
 	}
-
-	WideString deviceW(env, deviceName);
-
- 	host = quasar::IQuasarHost::Create(deviceW, loadCompiler == JNI_TRUE);
-	if (host == nullptr)
+	catch (...)
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "QHost.init() failed for an unknown reason.");
-		return;
+		RethrowAsJavaException(env);
 	}
 }
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_release(JNIEnv* env, jclass)
 {
-	if (host == nullptr)
+	try
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "QHost.release() failed because there does not seem to be a Quasar host active. Did you call QHost.init() first?");
-		return;
-	}
+		if (host == nullptr)
+		{
+			ThrowJavaException(env, "java/lang/RuntimeException", "QHost.release() failed because there does not seem to be a Quasar host active. Did you call QHost.init() first?");
+			return;
+		}
 
-	host->Release();
-	host = nullptr;
+		host->Release();
+		host = nullptr;
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+	}
 }
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_loadSourceModule(JNIEnv *env, jclass, jstring modulePath)
 {
-	assert(host != nullptr);
-
-	WideString pathW(env, modulePath);
-
-	LPCTSTR errorW;
-	bool loaded = host->LoadSourceModule(pathW, &errorW);
-	if (!loaded)
+	try
 	{
-		ThrowByName(env, "java/lang/RuntimeException", UTF16toModifiedUTF8(errorW));
+		assert(host != nullptr);
+
+		WideString pathW(env, modulePath);
+
+		LPCTSTR errorW;
+		bool loaded = host->LoadSourceModule(pathW, &errorW);
+		if (!loaded)
+		{
+			ThrowJavaException(env, "java/lang/RuntimeException", UTF16toModifiedUTF8(errorW));
+		}
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
 	}
 }
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_loadBinaryModule(JNIEnv *env, jclass, jstring modulePath)
 {
-	assert(host != nullptr);
-
-	WideString pathW(env, modulePath);
-
-	LPCTSTR errorW;
-	bool loaded = host->LoadBinaryModule(pathW, &errorW);
-	if (!loaded)
+	try
 	{
-		ThrowByName(env, "java/lang/RuntimeException", UTF16toModifiedUTF8(errorW));
+		assert(host != nullptr);
+
+		WideString pathW(env, modulePath);
+
+		LPCTSTR errorW;
+		bool loaded = host->LoadBinaryModule(pathW, &errorW);
+		if (!loaded)
+		{
+			ThrowJavaException(env, "java/lang/RuntimeException", UTF16toModifiedUTF8(errorW));
+		}
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
 	}
 }
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_loadModuleFromSource(JNIEnv *env, jclass, jstring moduleName, jstring sourceString)
 {
-	assert(host != nullptr);
-
-	WideString moduleW(env, moduleName);
-	WideString sourceW(env, sourceString);
-
-	LPCTSTR errorW;
-	bool loaded = host->LoadModuleFromSource(moduleW, sourceW, &errorW);
-	if (!loaded)
+	try
 	{
-		ThrowByName(env, "java/lang/RuntimeException", UTF16toModifiedUTF8(errorW));
+		assert(host != nullptr);
+
+		WideString moduleW(env, moduleName);
+		WideString sourceW(env, sourceString);
+
+		LPCTSTR errorW;
+		bool loaded = host->LoadModuleFromSource(moduleW, sourceW, &errorW);
+		if (!loaded)
+		{
+			ThrowJavaException(env, "java/lang/RuntimeException", UTF16toModifiedUTF8(errorW));
+		}
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
 	}
 }
 
 JNIEXPORT jboolean JNICALL Java_be_vib_bits_QHost_unloadModule(JNIEnv *env, jclass, jstring moduleName)
 {
-	assert(host != nullptr);
+	try
+	{
+		assert(host != nullptr);
 
-	WideString moduleNameW(env, moduleName);
+		WideString moduleNameW(env, moduleName);
 
-	bool unloaded = host->UnloadModule(moduleNameW);
- 	return unloaded ? JNI_TRUE : JNI_FALSE;
+		bool unloaded = host->UnloadModule(moduleNameW);
+		return unloaded ? JNI_TRUE : JNI_FALSE;
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+		return JNI_FALSE;
+	}
 }
 
 JNIEXPORT jboolean JNICALL Java_be_vib_bits_QHost_functionExists(JNIEnv *env, jclass, jstring functionName)
 {
-	assert(host != nullptr);
-	WideString functionNameW(env, functionName);
-	bool exists = host->FunctionExists(functionNameW);
-	return exists ? JNI_TRUE : JNI_FALSE;
+	try
+	{
+		assert(host != nullptr);
+		WideString functionNameW(env, functionName);
+		bool exists = host->FunctionExists(functionNameW);
+		return exists ? JNI_TRUE : JNI_FALSE;
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+		return JNI_FALSE;
+	}
 }
 
 namespace
@@ -120,7 +171,7 @@ namespace
 		const char* value = env->GetStringUTFChars(enumStringValue, 0);
 		if (value == nullptr)
 		{
-			ThrowByName(env, "java/lang/RuntimeException", "Failed to get value string of ProfilingMode object");
+			ThrowJavaException(env, "java/lang/RuntimeException", "Failed to get value string of ProfilingMode object");
 			return PROFILE_MEMLEAKS;
 		}
 
@@ -139,7 +190,8 @@ namespace
 		}
 		else
 		{
-			ThrowByName(env, "java/lang/RuntimeException", "Unsupported Quasar profiling mode"); // IMPROVEME: add name of unsupported mode in exception string
+			ThrowJavaException(env, "java/lang/RuntimeException", "Unsupported Quasar profiling mode"); // IMPROVEME: add name of unsupported mode in exception string
+			// Deliberate fall-through
 		}
 
 		env->ReleaseStringUTFChars(enumStringValue, value);
@@ -150,29 +202,44 @@ namespace
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_enableProfiling(JNIEnv* env, jclass, jobject profilingEnum)
 {
-	assert(host != nullptr);
-
-	ProfilingModes profilingMode = quasarProfilingMode(env, profilingEnum);
-	if (env->ExceptionCheck() == JNI_TRUE)
+	try
 	{
-		// An exception is pending - bail out.
-		return;
+		assert(host != nullptr);
+
+		ProfilingModes profilingMode = quasarProfilingMode(env, profilingEnum);
+		if (env->ExceptionCheck() == JNI_TRUE)
+		{
+			// Failed to set quasar profiling mode.
+			// An exception is pending - bail out.
+			return;
+		}
+
+		bool success = host->EnableProfiling(profilingMode);
+		if (!success)
+		{
+			ThrowJavaException(env, "java/lang/RuntimeException", "QHost.enableProfile() failed");
+		}
 	}
-
-	bool success = host->EnableProfiling(profilingMode);
-	if (!success)
+	catch (...)
 	{
-		ThrowByName(env, "java/lang/RuntimeException", "QHost.enableProfile() failed");
+		RethrowAsJavaException(env);
 	}
 }
 
-JNIEXPORT void JNICALL Java_be_vib_bits_QHost_runApp(JNIEnv *, jclass)
+JNIEXPORT void JNICALL Java_be_vib_bits_QHost_runApp(JNIEnv* env, jclass)
 {
-	assert(host != nullptr);
-	host->RunApp();
+	try
+	{
+		assert(host != nullptr);
+		host->RunApp();
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+	}
 }
 
-JNIEXPORT void JNICALL Java_be_vib_bits_QHost_printMachineInfo(JNIEnv *, jclass)
+JNIEXPORT void JNICALL Java_be_vib_bits_QHost_printMachineInfo(JNIEnv* env, jclass)
 {
 	// Small experiment. We should actually wrap the Quasar structures
 	// MachineInfo, CUDAInfo, etc., in Java objects and offer those in the bridge API,
@@ -192,7 +259,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_printMachineInfo(JNIEnv *, jclass)
 										machineInfo.cpu.platform == PLATFORM_MACOS ? _T("MacOS") : _T("Unknown"));
 		tprintf(_T("  platform version: %s\n"), (LPCTSTR)machineInfo.cpu.platformVersion.ToString());
 		tprintf(_T("  bits: %d\n"), machineInfo.cpu.archBits);
-		tprintf(_T("  memory: %.1f GB\n"), machineInfo.cpu.totalMemory / static_cast<float>(1024 * 1024 * 1024)); // totalMemory is the same as the value shown in Task Manager (but not identical to the raw chip size)
+		tprintf(_T("  memory: %.1f GB\n"), machineInfo.cpu.totalMemory / static_cast<float>(1024 * 1024 * 1024)); // totalMemory is the same as the value shown in Windows Task Manager (but not identical to the raw chip size)
 
 		if (machineInfo.cuda.installed)
 		{
@@ -236,12 +303,8 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_printMachineInfo(JNIEnv *, jclass)
 
 		host->FreeMachineInfo(const_cast<MachineInfo&>(machineInfo));
 	}
-	catch (exception_t ex)
-	{
-		tprintf(_T("An error occurred: %s\n"), (LPCTSTR)ex.message);
-	}
 	catch (...)
 	{
-		tprintf(_T("Unknown exception caught in printMachineInfo\n"));
+		RethrowAsJavaException(env);
 	}
 }

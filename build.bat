@@ -37,9 +37,7 @@ javah -cp java\src -d build\include be.vib.bits.QUtils
 rem /Zi enables debugging
 rem /LD creates a DLL
 cl /Zi /W3 /LD /EHsc /D_CRT_SECURE_NO_WARNINGS /DUNICODE /D_UNICODE ^
-cpp\WideString.cpp ^
 cpp\QTypeBuilderJNI.cpp ^
-cpp\Utils.cpp ^
 cpp\QUtilsJNI.cpp ^
 cpp\QHostJNI.cpp ^
 cpp\QValueJNI.cpp ^
@@ -47,6 +45,10 @@ cpp\QFunctionJNI.cpp ^
 cpp\QTypeJNI.cpp ^
 cpp\QMethodJNI.cpp ^
 cpp\QRangeJNI.cpp ^
+cpp\Encoding.cpp ^
+cpp\ExceptionHandling.cpp ^
+cpp\Utils.cpp ^
+cpp\WideString.cpp ^
 "%MY_QUASAR%\include\quasar_dsl.cpp" "%MY_QUASAR%\include\quasar_host.cpp"  "%MY_QUASAR%\include\char16_string.c" /I"%MY_JAVA%\include\win32" /I"%MY_JAVA%\include" /Ibuild\include /I"%MY_QUASAR%\include" /Fobuild\ /Febuild\JavaQuasarBridge.dll
 
 @if %errorlevel% neq 0 exit /b %errorlevel%
