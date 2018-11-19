@@ -11,14 +11,19 @@
 
 using namespace quasar;
 
-// Global variable host - used also in QValueJNI.cpp
-IQuasarHost* host = nullptr;
+
+IQuasarHost* host = nullptr; // Global variable host - used also in QValueJNI.cpp
+
+namespace
+{
+	bool initialized = false;  // Has the Quasar host already been initialized (even if afterwards release() was called)?
+}
 
 JNIEXPORT void JNICALL Java_be_vib_bits_QHost_init(JNIEnv *env, jclass, jstring deviceName, jboolean loadCompiler)
 {
 	try
 	{
-		if (host != nullptr)
+		if (initialized)
 		{
 			ThrowJavaException(env, "java/lang/RuntimeException", "The Quasar host was already initialized, and initialization can only occur once.");
 			return;
@@ -27,10 +32,8 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_init(JNIEnv *env, jclass, jstring 
 		WideString deviceW(env, deviceName);
 
 		host = quasar::IQuasarHost::Create(deviceW, loadCompiler == JNI_TRUE);
-		if (host == nullptr)
-		{
-			ThrowJavaException(env, "java/lang/RuntimeException", "QHost.init() failed for an unknown reason.");
-		}
+
+		initialized = true;
 	}
 	catch (...)
 	{
@@ -42,7 +45,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_release(JNIEnv* env, jclass)
 {
 	try
 	{
-		if (host == nullptr)
+		if (!initialized)
 		{
 			ThrowJavaException(env, "java/lang/RuntimeException", "QHost.release() failed because there does not seem to be a Quasar host active. Did you call QHost.init() first?");
 			return;
@@ -50,6 +53,31 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_release(JNIEnv* env, jclass)
 
 		host->Release();
 		host = nullptr;
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+	}
+}
+
+JNIEXPORT jboolean JNICALL Java_be_vib_bits_QHost_initialized(JNIEnv *env, jclass)
+{
+	return initialized ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL Java_be_vib_bits_QHost_setenv(JNIEnv *env, jclass, jstring str)
+{
+	try
+	{
+		char* quasarPath = getenv("QUASAR_PATH");  // TODO: remove this, it's for debugging only
+		std::cout << "Before setenv(something): QUASAR_PATH=" << (quasarPath == nullptr ? "(unset)" : quasarPath) << std::endl;
+
+		// IMPROVEME: works only on Windows
+		WideString strW(env, str);
+		_wputenv(strW);
+
+		quasarPath = getenv("QUASAR_PATH");  // TODO: remove this, it's for debugging only
+		std::cout << "After setenv(something): QUASAR_PATH=" << (quasarPath == nullptr ? "(unset)" : quasarPath) << std::endl;
 	}
 	catch (...)
 	{
