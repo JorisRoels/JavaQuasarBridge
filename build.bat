@@ -1,6 +1,5 @@
 set MY_QUASAR=E:\Program Files\Quasar
 set MY_JAVA=E:\Program Files\Java\jdk1.8.0_92
-set VERSION=0.0.1
 
 rmdir /s /q build
 mkdir build\class
@@ -19,7 +18,6 @@ java\src\be\vib\bits\QType.java ^
 java\src\be\vib\bits\QRange.java ^
 java\src\be\vib\bits\QNativePointer.java ^
 java\src\be\vib\bits\QException.java ^
-java\src\be\vib\bits\jartools\Jar.java ^
 java\src\Test.java ^
 java\src\Example1.java
 
@@ -36,7 +34,7 @@ javah -cp java\src -d build\include be.vib.bits.QUtils
 
 rem /Zi enables debugging
 rem /LD creates a DLL
-cl /Zi /W3 /LD /EHsc /D_CRT_SECURE_NO_WARNINGS /DUNICODE /D_UNICODE ^
+cl /Zi /W3 /LD /EHsc /D_CRT_SECURE_NO_WARNINGS /DUNICODE /D_UNICODE /DUSE_HOST_API ^
 cpp\QTypeBuilderJNI.cpp ^
 cpp\QUtilsJNI.cpp ^
 cpp\QHostJNI.cpp ^
@@ -60,4 +58,4 @@ copy build\JavaQuasarBridge.dll build\libraries\win64
 
 rmdir /s /q dist
 mkdir dist
-jar cvf dist\JavaQuasarBridge-%VERSION%.jar -C build\class . -C build libraries
+jar cvf dist\JavaQuasarBridge-0.0.1.jar -C build\class . -C build libraries
