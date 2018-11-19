@@ -40,7 +40,14 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceDivide(JNIEnv* env, jclass
 
 		QValue* q = reinterpret_cast<QValue*>(ptr);
 
+#if 0
+		// CHECKME: does this work? it looks as if we always get a matrix with zeros here?
+
 		(*q) /= s;  // CHECKME: what about division by zero - does this throw a Quasar exception?
+#else
+		QValue divisor(s);
+		q->InplaceDivide(divisor);
+#endif
 	}
 	catch (...)
 	{
