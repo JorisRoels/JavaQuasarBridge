@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 public class JavaQuasarBridge
 {
     private static boolean quasarStarted = false;
+    
+    // TODO: When testing is finished, remove the debug print statements.
 
 	static
 	{
@@ -61,18 +63,15 @@ public class JavaQuasarBridge
 	
 	public static void startQuasar(String device, boolean loadCompiler) throws InterruptedException, ExecutionException
 	{
-		// TODO: this naive flag avoids repeated initialization from the same thread, but we still need to fix
-		// concurrent initialization from different threads (e.g. via the ImageJ plugin menu and via an ImageJ script,
-		// but such a situation is unlikely though).
+		// IMPROVEME: This naive flag avoids repeated initialization from the same thread, but we still need to prevent
+		// concurrent initialization from different threads. This is very unlikely, but could happen in theory
+		// (say, via the ImageJ plugin menu and meanwhile via an ImageJ script).
 		if (quasarStarted)
 			return;
 		
 		Callable<Void> task = () -> {
 			System.out.println("QHost.init(device=" + device + ", loadcompiler=" + loadCompiler + ")");
 			QHost.init(device, loadCompiler);
-			
-			QHost.printMachineInfo(); // TODO: remove; for debugging only
-			
 			return null;
 		};
 		
