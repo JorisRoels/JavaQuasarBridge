@@ -1,4 +1,3 @@
-set MY_QUASAR=E:\Program Files\Quasar
 set MY_JAVA=E:\Program Files\Java\jdk1.8.0_92
 
 rmdir /s /q build
@@ -32,8 +31,8 @@ javah -cp java\src -d build\include be.vib.bits.QRange
 javah -cp java\src -d build\include be.vib.bits.QTypeBuilder
 javah -cp java\src -d build\include be.vib.bits.QUtils
 
-rem /Zi enables debugging
-rem /LD creates a DLL
+@rem /Zi enables debugging
+@rem /LD creates a DLL
 cl /Zi /W3 /LD /EHsc /D_CRT_SECURE_NO_WARNINGS /DUNICODE /D_UNICODE /DUSE_HOST_API ^
 cpp\QTypeBuilderJNI.cpp ^
 cpp\QUtilsJNI.cpp ^
@@ -47,15 +46,18 @@ cpp\Encoding.cpp ^
 cpp\ExceptionHandling.cpp ^
 cpp\Utils.cpp ^
 cpp\WideString.cpp ^
-"%MY_QUASAR%\include\quasar_dsl.cpp" "%MY_QUASAR%\include\quasar_host.cpp"  "%MY_QUASAR%\include\char16_string.c" /I"%MY_JAVA%\include\win32" /I"%MY_JAVA%\include" /Ibuild\include /I"%MY_QUASAR%\include" /Fobuild\ /Febuild\JavaQuasarBridge.dll
+"%QUASAR_PATH%\include\quasar_dsl.cpp" "%QUASAR_PATH%\include\quasar_host.cpp"  "%QUASAR_PATH%\include\char16_string.c" /I"%MY_JAVA%\include\win32" /I"%MY_JAVA%\include" /Ibuild\include /I"%QUASAR_PATH%\include" /Fobuild\ /Febuild\JavaQuasarBridge.dll
 
 @if %errorlevel% neq 0 exit /b %errorlevel%
 
-rem Note: To obtain class descriptors for JNI, use e.g. "javap -cp build\class -s -p be.vib.bits.QValue"
+@rem Note: To obtain class descriptors for JNI, use e.g. "javap -cp build\class -s -p be.vib.bits.QValue"
+
+@rem Query the Quasar version that we are using for building. We'll add that info to the JAR file for debugging purposes.
+"%QUASAR_PATH%\quasar.exe" --version | findstr /B Quasar > build\quasar_version.txt
 
 copy build\JavaQuasarBridge.dll build\libraries\win64
 @if %errorlevel% neq 0 exit /b %errorlevel%
 
 rmdir /s /q dist
 mkdir dist
-jar cvf dist\JavaQuasarBridge-0.0.1.jar -C build\class . -C build libraries
+jar cvf dist\JavaQuasarBridge-0.0.1.jar -C build\class . -C build libraries -C build quasar_version.txt
