@@ -82,10 +82,13 @@ public class JavaQuasarBridge
 	}
 		
 	// module: name of a .q or .qlib quasar module
+	// Example arguments:
+	//    className=be.vib.imagej.QuasarInitializationSwingWorker
+	//    resource=qlib/vib_denoising_algorithms.qlib
+	//    module=vib_denoising_algorithms.qlib
+	//    prefix=vib_em_denoising_
 	public static void extractAndLoadModule(String className, String resource, String module, String prefix) throws InterruptedException, ExecutionException
 	{
-		System.out.println("extractAndLoadModule className=" + className + " resource=" + resource + " module=" + module + " prefix=" + prefix);
-
 		assert(quasarStarted);
 		
 		Callable<Void> task = () -> {
@@ -106,10 +109,12 @@ public class JavaQuasarBridge
 		QExecutor.getInstance().submit(task).get();		
 	}
 	
+	// extractResource() example arguments:
+	//    className=be.vib.imagej.QuasarInitializationSwingWorker
+	//    resource=qlib/vib_denoising_algorithms.qlib
+	//    targetDirectory=C:\Users\jdoe\AppData\Local\Temp\vib_em_denoising_3426689084823383226
 	public static Path extractResource(String className, String resource, String targetDirectory) throws IOException, ClassNotFoundException
 	{		
-		System.out.println("extractResource className=" + className + " resource=" + resource + " targetDirectory=" + targetDirectory);
-		
 		String resourceFilename = Paths.get(resource).getFileName().toString();			
 		Path outputPath = Paths.get(targetDirectory, resourceFilename);
 		
