@@ -14,15 +14,11 @@ public class JavaQuasarBridge
 {
     private static boolean quasarStarted = false;
     
-    // TODO: When testing is finished, remove the debug print statements.
-
 	static
 	{
 		try
 		{
-			System.out.println("About to load JavaQuasarBridge dynamic library");
 			JavaQuasarBridge.loadLibrary(); // Just loads the JNI interface, it does not call Quasar itself yet. The Quasar path can be set afterwards (if it's not the default one).
-			System.out.println("JavaQuasarBridge dynamic library loaded.");
 		}
 		catch (ClassNotFoundException | IOException e)
 		{
@@ -70,7 +66,6 @@ public class JavaQuasarBridge
 			return;
 		
 		Callable<Void> task = () -> {
-			System.out.println("QHost.init(device=" + device + ", loadcompiler=" + loadCompiler + ")");
 			QHost.init(device, loadCompiler);
 			return null;
 		};
@@ -175,9 +170,7 @@ public class JavaQuasarBridge
 			public void run()
 			{
 				Callable<Void> task = () -> {
-					System.out.println("QHost.release()");
 					QHost.release();
-					System.out.println("Quasar host released");					
 					return null;
 				};
 				

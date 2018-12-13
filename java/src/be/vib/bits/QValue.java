@@ -50,7 +50,6 @@ public class QValue
 	private static native long newQValue(int[] a);
 	
 	private static native long newQValue(float[] a);
-	// TODO: higher dimensional arrays
 
 	private static native long newQValue(String s);
 	
@@ -146,7 +145,6 @@ public class QValue
 	static
 	{
 		// Calculate and cache field and method IDs for JNI.
-		// TODO: check that this indeed gets called if we only use a derived class of QValue, such as QFunction.
 		initIDs();
 	}
 }

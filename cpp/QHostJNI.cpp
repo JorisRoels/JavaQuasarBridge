@@ -69,15 +69,14 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_setenv(JNIEnv *env, jclass, jstrin
 {
 	try
 	{
-		char* quasarPath = getenv("QUASAR_PATH");  // TODO: remove this, it's for debugging only
-		std::cout << "Before setenv(something): QUASAR_PATH=" << (quasarPath == nullptr ? "(unset)" : quasarPath) << std::endl;
+		// char* quasarPath = getenv("QUASAR_PATH");
+		// std::cout << "Before setenv(something): QUASAR_PATH=" << (quasarPath == nullptr ? "(unset)" : quasarPath) << std::endl;
 
-		// IMPROVEME: works only on Windows
 		WideString strW(env, str);
 		_wputenv(strW);
 
-		quasarPath = getenv("QUASAR_PATH");  // TODO: remove this, it's for debugging only
-		std::cout << "After setenv(something): QUASAR_PATH=" << (quasarPath == nullptr ? "(unset)" : quasarPath) << std::endl;
+		// quasarPath = getenv("QUASAR_PATH");
+		// std::cout << "After setenv(something): QUASAR_PATH=" << (quasarPath == nullptr ? "(unset)" : quasarPath) << std::endl;
 	}
 	catch (...)
 	{
@@ -237,7 +236,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QHost_enableProfiling(JNIEnv* env, jclas
 		ProfilingModes profilingMode = quasarProfilingMode(env, profilingEnum);
 		if (env->ExceptionCheck() == JNI_TRUE)
 		{
-			// Failed to set quasar profiling mode.
+			// Failed to set Quasar profiling mode.
 			// An exception is pending - bail out.
 			return;
 		}

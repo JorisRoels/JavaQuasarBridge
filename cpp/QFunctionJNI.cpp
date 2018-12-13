@@ -4,7 +4,7 @@
 
 #include "ExceptionHandling.h"
 #include "WideString.h"
-#include "Utils.h" // GetQValueArg()
+#include "Utils.h"
 
 #include <iostream>
 

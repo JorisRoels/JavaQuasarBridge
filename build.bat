@@ -60,4 +60,4 @@ copy build\JavaQuasarBridge.dll build\libraries\win64
 
 rmdir /s /q dist
 mkdir dist
-jar cvf dist\JavaQuasarBridge-0.0.1.jar -C build\class . -C build libraries -C build quasar_version.txt
+jar cvf dist\JavaQuasarBridge-1.0.0.jar -C build\class . -C build libraries -C build quasar_version.txt

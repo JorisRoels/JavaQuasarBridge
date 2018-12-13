@@ -12,5 +12,4 @@ public class QTypeBuilder extends QValue
 	
 	private native static long newQTypeBuilder(String moduleName, String typeName);
 	
-	// TODO: QType createType...()   -- hmm, this will be somewhat more fun
 }

@@ -40,14 +40,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceDivide(JNIEnv* env, jclass
 
 		QValue* q = reinterpret_cast<QValue*>(ptr);
 
-#if 0
-		// CHECKME: does this work? it looks as if we always get a matrix with zeros here?
-
-		(*q) /= s;  // CHECKME: what about division by zero - does this throw a Quasar exception?
-#else
-		QValue divisor(s);
-		q->InplaceDivide(divisor);
-#endif
+		(*q) /= s;
 	}
 	catch (...)
 	{
@@ -57,7 +50,7 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceDivide(JNIEnv* env, jclass
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleByteArrayNative(JNIEnv* env, jclass, jint width, jint height, jbyteArray pixels)
 {
-	// - We're assuming pixels represents an 8 bit grayscale image - TODO: document layout of data in 'pixels'
+	// - We're assuming pixels represents an 8 bit grayscale image
 	// - Important note: Quasar cubes use the (y, x, z) indexing convention. See QuickReferenceManual.pdf section 2.1 page 11.
 
 	try
@@ -72,7 +65,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleByteArrayNat
 			for (jint x = 0; x < width; x++)
 			{
 				jint idx = y * width + x;
-				float gray = (float)(values[idx] & 0xff);  // CHECKME: is the mask needed?
+				float gray = (float)(values[idx] & 0xff);
 
 				// store gray value in Quasar cube object
 				cube.data[pos2ind(sz, make_int3(y, x, 0))] = gray;
@@ -96,8 +89,8 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleByteArrayNat
 
 JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleShortArrayNative(JNIEnv* env, jclass, jint width, jint height, jshortArray pixels)
 {
-	// - We're assuming pixels represents a 16 bit grayscale image - TODO: document layout of data in 'pixels'
-	// - Important note: Quasar cubes use the (y, x, z) indexing convention. See QuickReferenceManual.pdf section 2.1 page 11.
+	// - We're assuming pixels represents a 16 bit grayscale image
+	// - Important note: Quasar cubes use the (y, x, z) indexing convention.
 
 	try
 	{
@@ -111,7 +104,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleShortArrayNa
 			for (jint x = 0; x < width; x++)
 			{
 				jint idx = y * width + x;
-				float gray = (float)(values[idx] & 0xffff);  // CHECKME: is the mask needed?
+				float gray = (float)(values[idx] & 0xffff);
 
 				// store gray value in Quasar cube object
 				cube.data[pos2ind(sz, make_int3(y, x, 0))] = gray;
@@ -120,10 +113,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleShortArrayNa
 		env->ReleaseShortArrayElements(pixels, values, JNI_ABORT);
 		host->UnlockCube(q);
 
-		// TODO: check if we can avoid this - to be able to control lifetime of the cube on the Java side,
-		//       we need to copy it onto the heap. Does this do a deep copy, or does it just make a new quasar smart pointer object?
-
-		QValue* result = new QValue(q);
+		QValue* result = new QValue(q);  // Create a Quasar object on the heap so we are able to control the lifetime of the cube on the Java side
 		return reinterpret_cast<jlong>(result);
 	}
 	catch (...)
@@ -134,7 +124,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QUtils_newCubeFromGrayscaleShortArrayNa
 }
 
 JNIEXPORT jbyteArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleByteArrayFromCube(JNIEnv* env, jclass, jint width, jint height, jobject obj)
-// TODO: fix API -  we should actually return width and height as well
+// IMPROVEME: remove width and height parameters, and get them from the Quasar cube instead
 {
 	try
 	{
@@ -146,7 +136,6 @@ JNIEXPORT jbyteArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleByteArrayFromCu
 
 		jbyteArray pixels = env->NewByteArray(width * height);
 
-		// FIXME: remove width and height parameters, and get them from the Quasar cube instead
 
 		jbyte *values = env->GetByteArrayElements(pixels, nullptr);
 		int3 sz = make_int3(height, width, 1);
@@ -154,7 +143,7 @@ JNIEXPORT jbyteArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleByteArrayFromCu
 		{
 			for (jint x = 0; x < width; x++)
 			{
-				// read gray value from quasar cube object
+				// Read gray value from quasar cube object
 				// (note: Quasar cubes use (y, x, z) indexing convention)
 				float gray = cube.data[pos2ind(sz, make_int3(y, x, 0))];
 
@@ -184,7 +173,7 @@ JNIEXPORT jbyteArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleByteArrayFromCu
 }
 
 JNIEXPORT jshortArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleShortArrayFromCube(JNIEnv* env, jclass, jint width, jint height, jobject obj)
-// TODO: fix API -  we should actually return width and height as well
+// IMPROVEME: remove width and height parameters, and get them from the Quasar cube instead
 {
 	try
 	{
@@ -196,15 +185,13 @@ JNIEXPORT jshortArray JNICALL Java_be_vib_bits_QUtils_newGrayscaleShortArrayFrom
 
 		jshortArray pixels = env->NewShortArray(width * height);
 
-		// FIXME: remove width and height parameters, and get them from the Quasar cube instead
-
 		jshort *values = env->GetShortArrayElements(pixels, nullptr);
 		int3 sz = make_int3(height, width, 1);
 		for (jint y = 0; y < height; y++)
 		{
 			for (jint x = 0; x < width; x++)
 			{
-				// read gray value from quasar cube object
+				// Read gray value from quasar cube object
 				// (note: Quasar cubes use (y, x, z) indexing convention)
 				float gray = cube.data[pos2ind(sz, make_int3(y, x, 0))];
 

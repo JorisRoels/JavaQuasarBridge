@@ -36,7 +36,7 @@ public class QFunction extends QValue
 		return new QValue(new QNativePointer(resultPtr));
 	}
 	
-	// TODO: support Quasar functions that return > 1 value.
+	// IMPROVEME: support Quasar functions that return > 1 value.
 	// Java does not support returning tuples, but all return values happen to be
 	// of the QValue wrapper type. So we can probably return a QValue[] instead:
 	//

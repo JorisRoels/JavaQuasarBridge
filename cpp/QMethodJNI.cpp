@@ -19,7 +19,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QMethod_newQMethod(JNIEnv* env, jclass,
 
 		Type* type = reinterpret_cast<Type*>(typePtr);
 
-		Method* q = new Method(*type, signatureW);  // TODO: check/ask if copy of signature needed (it used to be needed in newFunction for example - but not anymore),
+		Method* q = new Method(*type, signatureW);
 
 		return reinterpret_cast<jlong>(q);
 	}
@@ -34,7 +34,7 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QMethod_applyNative(JNIEnv* env, jobjec
 {
 	try
 	{
-		// Get the quasar object whose method we want to call.
+		// Get the Quasar object whose method we want to call.
 		jlong targetPtr = env->GetLongField(jtarget, qvalue_ptr_fieldID);
 		assert(targetPtr != 0);
 		QValue* target = reinterpret_cast<QValue*>(targetPtr);

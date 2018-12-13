@@ -132,7 +132,7 @@ jlong newQValueArrayHelper(JNIEnv* env, JavaArrType arr)
 
 		jboolean isCopy = JNI_FALSE;
 
-		JavaElemType* jelems = (JavaElemType*)env->GetPrimitiveArrayCritical(arr, &isCopy); // TODO: make 100% sure we won't trigger deadlock between here and ReleasePrimitiveArrayCritical()
+		JavaElemType* jelems = (JavaElemType*)env->GetPrimitiveArrayCritical(arr, &isCopy);
 
 		if (jelems == nullptr)
 		{
