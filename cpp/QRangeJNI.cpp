@@ -11,7 +11,8 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QRange_newQRange__(JNIEnv* env, jclass)
 {
 	try
 	{
-		QValue *q = new Range();
+		QValue r = Range();
+		QValue *q = new QValue(r);  // copy on the heap
 		return reinterpret_cast<jlong>(q);
 	}
 	catch (...)
@@ -25,7 +26,8 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QRange_newQRange__III(JNIEnv* env, jcla
 {
 	try
 	{
-		QValue *q = new Range(minVal, maxVal, step);
+		QValue r = Range(minVal, maxVal, step);
+		QValue *q = new QValue(r);  // copy on the heap
 		return reinterpret_cast<jlong>(q);
 	}
 	catch (...)
@@ -39,7 +41,8 @@ JNIEXPORT jlong JNICALL Java_be_vib_bits_QRange_newQRange__FFF(JNIEnv* env, jcla
 {
 	try
 	{
-		QValue *q = new Range(minVal, maxVal, step);
+		QValue r = Range(minVal, maxVal, step);
+		QValue *q = new QValue(r);  // copy on the heap
 		return reinterpret_cast<jlong>(q);
 	}
 	catch (...)

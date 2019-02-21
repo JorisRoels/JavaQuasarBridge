@@ -90,7 +90,7 @@ public class Test
 			// such as compiling .q files.			
 			if (haveQuasarLicense)
 			{			
-				System.out.println("Additional tests requiring a full Quasar installation and a license.");
+				System.out.println("Performing additional tests that require a full Quasar installation and a license.");
 				testLoadSource(quasarFolder);			
 				testLoadSourceFromString();
 				testGaussian();
