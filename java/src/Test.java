@@ -1,5 +1,3 @@
-// TODO: get rid of Q prefix but move all classes to be.vib.bits.quasar? And rename JavaQuasarBridge to be.vib.bits.quasar.JavaBridge
-// FIXME: the lena tif an probably not be found in case we have a Quasar without license, but is used in several test cases
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -135,7 +133,7 @@ public class Test
 	
 	private static void testFloatArray()
 	{
-		float[] a = new float[10];
+		float[] a = new float[10000];
 		for (int i = 0; i < a.length; i++)
 			a[i] = i;
 		
@@ -143,20 +141,18 @@ public class Test
 	
 		// Check size
 		assert(q.size(0) == 1);
-		assert(q.size(1) == 10);
+		assert(q.size(1) == 10000);
 		assert(q.size(2) == 1);
 		
 		// Check content
 		System.out.println(q.at(5).getFloat());
 		System.out.println(q.at(0,5,0).getFloat());
-//		FIXME- 0.0?!	    assert(q.at(5000).getFloat() == 5000.0f);
-		
+		assert(q.at(5000).getFloat() == 5000.0f);
 		
 		QFunction print = new QFunction("print(...)");
 		assert(QHost.functionExists("print"));
 		
 		print.apply(q);		
-		
 		
 	    // Immediate manual cleanup - it's a "large" array.
 		q.dispose();
@@ -178,7 +174,7 @@ public class Test
 		// Check content
 		System.out.println(q.at(5000).getFloat());
 		
-//	FIXME- 0.0?!    assert(q.at(5000).getFloat() == 5000.0f);   // ! note that the int array got turned into scalars (which are floats).
+		assert(q.at(5000).getFloat() == 5000.0f);   // ! note that the int array got turned into scalars (which are floats).
 		
 	    // Immediate manual cleanup - it's a "large" array.
 		q.dispose();
@@ -384,7 +380,6 @@ public class Test
 		// (Connecting them has the effect that zooming and panning
 		// in one image window will do the same zoom/pan in the other.)
 
-		// TODO
 		// QType t1 = new QType(p1);
 		// QMethod connect = new QMethod(t1, "connect(??)");
 		// connect.apply(p1, p2);  // Call the function p1.connect(p2)
@@ -422,8 +417,7 @@ public class Test
 	
 	private static void testUserTypes()
 	{
-		// TODO
-		// This is work in progress.
+		// This is work in progress. Quasar user defined types are used only seldom; supporting them is not crucial.
 		// The goal is to mimick the example %QUASAR_PATH%\Interop_Samples\Cpp_API\sample7_usertypes.cpp
 		
 		// This works.

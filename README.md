@@ -1,10 +1,7 @@
 ### Abstract
 
-The JavaQuasarBridge project offers a Java interface to [Quasar](http://gepura.io/quasar/).
-
-### Status
-
-The project is currently in an advanced proof-of-concept state.
+The JavaQuasarBridge project offers a Java interface for [Quasar](http://gepura.io/quasar/).
+It is currently used in the [DenoisEM](https://github.com/vibbits/EMDenoising) EM image denoising plugin for Fiji/ImageJ.
 
 ### Contact
 

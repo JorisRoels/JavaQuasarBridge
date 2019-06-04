@@ -1,3 +1,9 @@
+rem Note:
+rem In order to _build_ the JavaQuasarBridge, the _full_ Quasar distribution must be installed.
+rem See https://gepura.io/quasar/try-quasar/
+rem A precompiled version of the JavaQuasarBridge (a JAR file) however can be used with the
+rem minimal Quasar distribution consisting of the Quasar runtime only.
+
 set MY_JAVA=E:\Program Files\Java\jdk1.8.0_92
 
 rmdir /s /q build
@@ -17,8 +23,7 @@ java\src\be\vib\bits\QType.java ^
 java\src\be\vib\bits\QRange.java ^
 java\src\be\vib\bits\QNativePointer.java ^
 java\src\be\vib\bits\QException.java ^
-java\src\Test.java ^
-java\src\Example1.java
+java\src\Test.java
 
 @if %errorlevel% neq 0 exit /b %errorlevel%
 

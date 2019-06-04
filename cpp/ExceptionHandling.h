@@ -4,7 +4,7 @@
 #include <jni.h>
 #include <string>
 
-// The function ThrowJavaException() throws a JAVA exception of class 'exception' and
+// The function ThrowJavaException() throws a Java exception of class 'exception' and
 // with the given 'message'. The message is a string encoded in *modified* UTF8.
 // The'exception' parameter could be "java/lang/RuntimeException", for example.
 // The Java exception is thrown via JNI.
