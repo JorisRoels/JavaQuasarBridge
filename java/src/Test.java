@@ -356,7 +356,7 @@ public class Test
 				+ "	parallel_do (size(y), z, y, fc, n, gaussian_filter_ver)\n"
 				+ "end";
 		
-		QHost.loadModuleFromSource("example", program);   // TODO: check/ask what the meaning is of the moduleName in loadModuleFromSource
+		QHost.loadModuleFromSource("example", program);
 		
 		boolean exists = QHost.functionExists("gaussian_filter");
 		assert(exists);
