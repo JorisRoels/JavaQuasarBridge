@@ -14,6 +14,28 @@ extern IQuasarHost* host;
 
 extern jfieldID qvalue_ptr_fieldID;
 
+JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceAdd(JNIEnv* env, jclass, jobject obj, jfloat s)
+{
+	try
+	{
+		jlong ptr = env->GetLongField(obj, qvalue_ptr_fieldID);
+		assert(ptr != 0);
+
+		QValue* q = reinterpret_cast<QValue*>(ptr);
+
+		(*q) += s;
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+	}
+}
+
+JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceSubtract(JNIEnv* env, jclass cls, jobject obj, jfloat s)
+{
+	Java_be_vib_bits_QUtils_inplaceAdd(env, cls, obj, -s);
+}
+
 JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceMultiply(JNIEnv* env, jclass, jobject obj, jfloat s)
 {
 	try

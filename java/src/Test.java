@@ -187,6 +187,10 @@ public class Test
 		
 		QValue q = new QRange(0, 100);	
 		print.apply(q);		
+		QUtils.inplaceAdd(q, 10);
+		print.apply(q);
+		QUtils.inplaceSubtract(q, 10);
+		print.apply(q);
 		QUtils.inplaceDivide(q, 10);		
 		print.apply(q);
 		QUtils.inplaceMultiply(q, 10);

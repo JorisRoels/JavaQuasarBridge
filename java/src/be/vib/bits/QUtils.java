@@ -8,6 +8,12 @@ public class QUtils
 	// Divide all elements in the cube by the given scalar s. 
 	public native static void inplaceDivide(QValue cube, float s);
 	
+	// Add scalar s to every element in the cube. 
+	public native static void inplaceAdd(QValue cube, float s);
+	
+	// Subtract scalar s from every element in the cube. 
+	public native static void inplaceSubtract(QValue cube, float s);
+
 	public static QValue newCubeFromGrayscaleByteArray(int width, int height, byte[] pixels)
 	{
 		long p = newCubeFromGrayscaleByteArrayNative(width, height, pixels);
