@@ -13,7 +13,22 @@ public class QUtils
 	
 	// Subtract scalar s from every element in the cube. 
 	public native static void inplaceSubtract(QValue cube, float s);
-
+	
+	// q = min(q, a)
+	public native static void inplaceMin(QValue q, QValue a);
+	
+	// q = max(q, a)
+	public native static void inplaceMax(QValue q, QValue a);
+	
+	// Clamp q to the range [lo, hi]:
+	// q = max(min(q, hi), lo)
+	// The value q can be an array, for example.
+	public static void inplaceClamp(QValue q, QValue lo, QValue hi)
+	{
+		inplaceMin(q, hi);
+		inplaceMax(q, lo);
+	}
+	
 	public static QValue newCubeFromGrayscaleByteArray(int width, int height, byte[] pixels)
 	{
 		long p = newCubeFromGrayscaleByteArrayNative(width, height, pixels);

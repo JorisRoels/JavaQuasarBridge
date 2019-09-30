@@ -70,6 +70,8 @@ public class Test
 
 			testInplaceOps2();
 
+			testInplaceOps3();
+
 			testFunction1();
 	
 			testFunction2();
@@ -212,7 +214,28 @@ public class Test
 
 		image.dispose();		
 	}
-	
+
+	private static void testInplaceOps3()
+	{
+		QFunction print = new QFunction("print(...)");
+		assert(QHost.functionExists("print"));
+		
+		QValue q = new QRange(-10, 10);
+		print.apply(q);		
+		
+		QUtils.inplaceMax(q, new QValue(-8));
+		print.apply(q);
+		QUtils.inplaceMin(q, new QValue(5));
+		print.apply(q);
+
+		QValue lo = new QValue(-3);
+		QValue hi = new QValue(2);
+		QUtils.inplaceClamp(q, lo, hi);
+		print.apply(q);
+
+		q.dispose();		
+	}
+
 	private static void testLoadSource(String quasarInstallationFolder)
 	{
 		// IMPROVEME: avoid dependency on external files

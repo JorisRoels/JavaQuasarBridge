@@ -31,6 +31,48 @@ JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceAdd(JNIEnv* env, jclass, j
 	}
 }
 
+JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceMin(JNIEnv *env, jclass cls, jobject obj1, jobject obj2)
+{
+	try
+	{
+		jlong ptr1 = env->GetLongField(obj1, qvalue_ptr_fieldID);
+		assert(ptr1 != 0);
+
+		jlong ptr2 = env->GetLongField(obj2, qvalue_ptr_fieldID);
+		assert(ptr2 != 0);
+
+		QValue* q1 = reinterpret_cast<QValue*>(ptr1);
+		QValue* q2 = reinterpret_cast<QValue*>(ptr2);
+
+		q1->InplaceMin(*q2);
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+	}
+}
+
+JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceMax(JNIEnv *env, jclass cls, jobject obj1, jobject obj2)
+{
+	try
+	{
+		jlong ptr1 = env->GetLongField(obj1, qvalue_ptr_fieldID);
+		assert(ptr1 != 0);
+
+		jlong ptr2 = env->GetLongField(obj2, qvalue_ptr_fieldID);
+		assert(ptr2 != 0);
+
+		QValue* q1 = reinterpret_cast<QValue*>(ptr1);
+		QValue* q2 = reinterpret_cast<QValue*>(ptr2);
+
+		q1->InplaceMax(*q2);
+	}
+	catch (...)
+	{
+		RethrowAsJavaException(env);
+	}
+}
+
 JNIEXPORT void JNICALL Java_be_vib_bits_QUtils_inplaceSubtract(JNIEnv* env, jclass cls, jobject obj, jfloat s)
 {
 	Java_be_vib_bits_QUtils_inplaceAdd(env, cls, obj, -s);
