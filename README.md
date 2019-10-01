@@ -1,5 +1,5 @@
 # JavaQuasarBridge
-The JavaQuasarBridge project offers a Java interface for [Quasar](http://gepura.io/quasar/). Quasar is an accessible and high level programming language that leverages from parallel computing (e.g. GPUs). 
+The JavaQuasarBridge project offers a Java interface for [Quasar](http://gepura.io/quasar/). Quasar is an accessible and high level programming language that leverages from parallel computing (e.g. GPUs). The software was developed by the Image Processing and Interpretation research group of Ghent University and the Bioinformatics Core of the Flanders Institute for Biotechnology. 
 
 The JavaQuasarBridge is currently used in the [DenoisEM](http://bioimagingcore.be/DenoisEM/) EM image denoising plugin for ImageJ. 
 
