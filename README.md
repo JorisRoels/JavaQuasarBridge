@@ -5,6 +5,7 @@ The JavaQuasarBridge is currently used in the [DenoisEM](http://bioimagingcore.b
 
 # References
 We ask users that employ this code to refer to this repository and acknowledge Quasar: 
+  
   B. Goossens, “Dataflow Management, Dynamic Load Balancing and Concurrent Processing for Real-time Embedded Vision Applications using Quasar,” International Journal of Circuit Theory and Applications, Special Issue of Computational Image Sensors and Smart Camera Hardware, Aug. 2018 p1-23. 
 
 # Contact
